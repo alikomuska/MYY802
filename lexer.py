@@ -1,3 +1,5 @@
+import sys
+
 ################################
 ###         TOKENS           ###
 ################################
@@ -156,3 +158,13 @@ class Lexer:
         basic=Lexer(text)
         tokens=basic.make_tokens()
         return tokens
+
+
+#  main function
+def main():
+    inputFilePath = sys.argv[1]
+
+
+
+if __name__ == "__main__":
+    main()
