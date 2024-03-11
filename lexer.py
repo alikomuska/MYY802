@@ -64,9 +64,11 @@ class Illegalchar(Error):
 class Lexer:
     def __init__(self, filePath):
         self.filePath = filePath
-        self.pos=-1
+        self.pos = -1
+        self.line = 1
         self.current_char =None
         self.advance()
+        self.tokens = [][] 
 
 
     def  advance(self):
@@ -78,33 +80,29 @@ class Lexer:
             
 
     def make_toneks(self):
-        tokens=[]
         
        
-        
+       ##LL1   
         while self.current_char!=None:
             if self.current_char == '\t' or self.current_char == ' ':
-                self.advance()
             elif self.current_char  in DIGITS :
-                tokens.append(self.make_number())
+                current_token = self.make_number()
             elif self.current_char in LETTERS:
-                tokens.append(self.make_word())
-
-            
+                current_token = self.make_word()
             elif self.current_char in OPERATORS:
-                tokens.append(self.make_operators())
-                self.advance() 
+                current_token = self.make_operators()
             elif self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
-                tokens.append(self.make_group_symbols())
-                self.advance()            
+                current_token = self.make_group_symbols()
             elif self.current_char in COMMENT_SYMBOL:
-                tokens.append(Token('COMMENT_SYMBOL',self.current_char))
-                self.advance()
+                continue # todo self.comment 
+            elif self.current_char == '\n'
+                self.line+=1
             else:
                 char=self.current_char
-                self.advance()
                 return[] ,Illegalchar("'"+char+"'")
-        self.advance()         
+
+        self.tokens[self.line].append(current_token)
+        self.advance().append(self.         
         return tokens  ,None       
 
     def make_word(self):
