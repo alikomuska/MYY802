@@ -62,8 +62,8 @@ class Illegalchar(Error):
 #####################################
     
 class Lexer:
-    def __init__(self,text):
-        self.text =text 
+    def __init__(self, filePath):
+        self.filePath = filePath
         self.pos=-1
         self.current_char =None
         self.advance()
@@ -80,7 +80,7 @@ class Lexer:
     def make_toneks(self):
         tokens=[]
         
-        
+       
         
         while self.current_char!=None:
             if self.current_char == '\t' or self.current_char == ' ':
@@ -163,8 +163,7 @@ class Lexer:
 #  main function
 def main():
     inputFilePath = sys.argv[1]
-
-
+    lex = Lexer(inputFilePath)
 
 if __name__ == "__main__":
     main()
