@@ -154,8 +154,8 @@ class Lexer:
         return Token('GROUP_SYMBOL', result, self.line)
     
     def return_token(self):
-        token_index+=1
-        return tokens[token_index]
+        self.token_index+=1
+        return self.tokens[self.token_index]
     
 #main function
 def main():
@@ -164,6 +164,8 @@ def main():
     lex = Lexer(sourceCode)
     lex.make_tokens()
     print(lex.tokens)
+    for i in range (5):
+        print(lex.return_token().value)
 
 if __name__ == "__main__":
     main()
