@@ -21,10 +21,10 @@ COMMENT_SYMBOL = set('##')
 
 
 class Token:
-    def __init__(self, type, value):
+    def __init__(self, type, value, line):
         self.type = type
         self.value =value
-        
+        self.line = line
 
     def __repr__(self):
         if self.value: 
@@ -52,40 +52,37 @@ class Illegalchar(Error):
 
 
 #####################################
-###           POSITION            ###
-#####################################
-
-
-
-#####################################
 ###            LEXER              ###
 #####################################
     
 class Lexer:
-    def __init__(self, filePath):
-        self.filePath = filePath
+    def __init__(self, sourceCode):
         self.pos = -1
         self.line = 1
-        self.current_char =None
-        self.advance()
-        self.tokens = [][] 
-
-
+        self.current_char = None
+        self.tokens = [] 
+        self.sourceCode = sourceCode
+        self.sourceCodeSize = len(sourceCode)
+        self.token_index=-1
+        
     def  advance(self):
         self.pos+=1
-        if self.pos < len(self.text):
-            self.current_char=self.text[self.pos] 
+        if self.pos < self.sourceCodeSize: # < or <=
+            self.current_char=self.sourceCode[self.pos] 
         else: 
              self.current_char=None
-            
+        return            
 
-    def make_toneks(self):
-        
+
+    def make_tokens(self):
        
-       ##LL1   
+        self.advance()
+
         while self.current_char!=None:
             if self.current_char == '\t' or self.current_char == ' ':
-            elif self.current_char  in DIGITS :
+                self.advance()
+                continue
+            elif self.current_char in DIGITS :
                 current_token = self.make_number()
             elif self.current_char in LETTERS:
                 current_token = self.make_word()
@@ -94,16 +91,20 @@ class Lexer:
             elif self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
                 current_token = self.make_group_symbols()
             elif self.current_char in COMMENT_SYMBOL:
+                self.advance()
                 continue # todo self.comment 
-            elif self.current_char == '\n'
+            elif self.current_char == '\n':
                 self.line+=1
+                self.advance()
+                continue
             else:
                 char=self.current_char
                 return[] ,Illegalchar("'"+char+"'")
 
-        self.tokens[self.line].append(current_token)
-        self.advance().append(self.         
-        return tokens  ,None       
+            self.tokens.append(current_token)
+
+        return self.tokens, None       
+
 
     def make_word(self):
         result = ''
@@ -111,9 +112,9 @@ class Lexer:
                 result += self.current_char
                 self.advance()
         if result in KEYWORDS:
-            return Token('keyword',result)
+            return Token('keyword', result, self.line)
         else:        
-            return Token('WORD', result)
+            return Token('WORD', result, self.line)
 
 
     def make_number(self):
@@ -123,20 +124,22 @@ class Lexer:
             num_str += self.current_char
             self.advance()
     
-    # Check if the next character is an illegal character
+        # Check if the next character is an illegal character
         if self.current_char is not None and self.current_char in LETTERS:
             return [], Illegalchar("'" + self.current_char + "'")
 
-    # Create a token for the integer value
-        return Token('INT', int(num_str))
+        # Create a token for the integer value
+        return Token('INT', int(num_str), self.line)
+
 
     def make_operators(self):
         result=''
         while self.current_char is not None and self.current_char in OPERATORS:
                 result += self.current_char
                 self.advance()
-        return Token('OPERATOR', result)
-        
+        return Token('OPERATOR', result, self.line)
+       
+
     def make_group_symbols(self):
         result=''
         while self.current_char is not None and self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
@@ -144,24 +147,23 @@ class Lexer:
                 self.advance()
                 if self.current_char=='{' or self.current_char=='}':
                     result+=self.current_char
-                    return Token('GROUP_SYMBOL',result)
+                    return Token('GROUP_SYMBOL',result, self.line)
                 elif self.current_char=='#':
                     result +=self.current_char
-                    return Token('COMMENT_SYMBOL',result)
-        return Token('GROUP_SYMBOL', result)
+                    return Token('COMMENT_SYMBOL',result, self.line)
+        return Token('GROUP_SYMBOL', result, self.line)
     
+    def return_token(self):
+        token_index+=1
+        return tokens[token_index]
     
-    
-    def run(text):
-        basic=Lexer(text)
-        tokens=basic.make_tokens()
-        return tokens
-
-
-#  main function
+#main function
 def main():
-    inputFilePath = sys.argv[1]
-    lex = Lexer(inputFilePath)
+    inputFilePath = sys.argv[-1]
+    sourceCode = open(inputFilePath).read()
+    lex = Lexer(sourceCode)
+    lex.make_tokens()
+    print(lex.tokens)
 
 if __name__ == "__main__":
     main()
