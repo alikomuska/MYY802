@@ -155,6 +155,8 @@ class Lexer:
     
     def return_token(self):
         self.token_index+=1
+        if self.token_index>=len(self.tokens):
+            return None
         return self.tokens[self.token_index]
     
 #main function
@@ -164,8 +166,10 @@ def main():
     lex = Lexer(sourceCode)
     lex.make_tokens()
     print(lex.tokens)
-    for i in range (5):
-        print(lex.return_token().value)
+    token = lex.return_token()
+    while token != None:
+        print(token.value,"line: ", token.line)
+        token = lex.return_token()
 
 if __name__ == "__main__":
     main()
