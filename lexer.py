@@ -1,9 +1,9 @@
 import sys
 
-################################
-###         TOKENS           ###
-################################
 
+################################
+###       ALPHABET           ###
+################################
 
 
 KEYWORDS = {
@@ -19,6 +19,9 @@ COMMENT_SYMBOL = set('##')
 
 
 
+###############################
+###         TOKENS          ###
+###############################
 
 class Token:
     def __init__(self, type, value, line):
@@ -32,9 +35,11 @@ class Token:
         return f'{self.type}'
     
 
-#####################################
+
+###################################
 ###           ERRORS            ###
-#####################################
+###################################
+
 class Error:
     def  __init__(self,error_name,details):
         self.error_name=error_name
@@ -158,18 +163,27 @@ class Lexer:
         if self.token_index>=len(self.tokens):
             return None
         return self.tokens[self.token_index]
-    
+
+
+##################################
+###          PARSER            ###
+##################################
+
+class Parser:
+
+    def __init__(self, sourceCode):
+        self.lex = Lexer(sourceCode)
+        self.value = self.lex.return_token().value
+
+    def syntax_analyzer(self):
+        print(self.currentToken)
+
 #main function
 def main():
     inputFilePath = sys.argv[-1]
     sourceCode = open(inputFilePath).read()
-    lex = Lexer(sourceCode)
-    lex.make_tokens()
-    print(lex.tokens)
-    token = lex.return_token()
-    while token != None:
-        print(token.value,"line: ", token.line)
-        token = lex.return_token()
+    par = Parser(sourceCode)
+    print(par.value)
 
 if __name__ == "__main__":
     main()
