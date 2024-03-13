@@ -173,17 +173,23 @@ class Parser:
 
     def __init__(self, sourceCode):
         self.lex = Lexer(sourceCode)
-        self.value = self.lex.return_token().value
+        self.lex.make_tokens()
+        self.currentToken = self.lex.return_token()
 
     def syntax_analyzer(self):
         print(self.currentToken)
+        self.currentToken = self.lex.return_token()
 
 #main function
 def main():
     inputFilePath = sys.argv[-1]
     sourceCode = open(inputFilePath).read()
     par = Parser(sourceCode)
-    print(par.value)
+
+    par.syntax_analyzer()
+    par.syntax_analyzer()
+    par.syntax_analyzer()
+    par.syntax_analyzer()
 
 if __name__ == "__main__":
     main()
