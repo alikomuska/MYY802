@@ -69,6 +69,7 @@ class Lexer:
         self.sourceCode = sourceCode
         self.sourceCodeSize = len(sourceCode)
         self.token_index=-1
+        self.make_tokens()
         
     def  advance(self):
         self.pos+=1
@@ -174,7 +175,132 @@ class Parser:
     def __init__(self, sourceCode):
         self.lex = Lexer(sourceCode)
         self.lex.make_tokens()
-        self.currentToken = self.lex.return_token()
+
+    def while_state():
+
+        #condition
+
+        while_token = self.return_token()
+        if(while_token.value != ':'):
+            print("Error...")
+            return #kill prog
+
+
+        #statments TO DO
+
+
+
+
+    def if_state():
+        #since you are inside the if_block then you know that the previous token was "if" 
+
+        #check for condition
+        self.condition()
+
+        #check for :
+        if_token = self.lex.return_token()
+        if(if_token.value != ':'):
+            print("Error") 
+            return #kill program
+
+        #check for: if, while, ekxorisi, return,  print, input
+        self.decide_flow() 
+
+        #check for elif
+        if_token = self.lex.return_token()
+        if(if_token.value != "elif"):
+            return if_token 
+
+        next_token = self.if_block()
+
+        #check for else
+        if(next_token.value != 'else'):
+            return next_token
+
+        #check for ':'
+        if_token = self.lex.return_token()
+        if(if_token.value != ':'):
+            print("Error") #kill program
+            return 
+
+        self.decide_flow()
+        
+        return #if you get a token that you wont use, then you reaturn it
+
+
+    def statement_state:
+        
+        #simple_statement
+        #strctured_statment
+
+
+
+    def dicede_flow_state():
+
+        
+
+
+
+        return
+
+
+
+
+
+
+
+    def condition_state:
+
+        return
+
+
+    def print_state:
+
+        print_token = self.return_token()     
+        if(print_token.value != '('):
+            print("Error")
+            return #kill
+
+        #expression
+
+        print_token = self.return_token()
+        if(print_token.value != ')')
+            print("Error")
+            return #kill
+
+    def assignment_state:
+
+        assignment_token = self.return_token()
+        if(assignment_token.value != '='):
+            print("Error...")
+            return
+
+
+    def simple_statement:
+        simple_token = self.return_token()
+        #assignment check
+        if(simple_token.type == 'ID'):
+            self.assignment_state()
+
+        #print check
+        if(simple_token.value == "print"):
+            self.print_state()
+
+        #return check
+        if(simple_token.value == "return"):
+
+
+    def input_state:
+        input_token = self.return_token()
+        if(input_token.value != "return"):
+            self.return_state()
+    
+
+    def return_state:
+        return_token = self.return_token()
+        if(return_token != '('):
+            print("Error... ")
+        
 
     def syntax_analyzer(self):
         print(self.currentToken)
@@ -185,10 +311,6 @@ def main():
     inputFilePath = sys.argv[-1]
     sourceCode = open(inputFilePath).read()
     par = Parser(sourceCode)
-
-    par.syntax_analyzer()
-    par.syntax_analyzer()
-    par.syntax_analyzer()
     par.syntax_analyzer()
 
 if __name__ == "__main__":
