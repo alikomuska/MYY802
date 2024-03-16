@@ -159,12 +159,15 @@ class Lexer:
                     return Token('COMMENT_SYMBOL',result, self.line)
         return Token('GROUP_SYMBOL', result, self.line)
     
-    def return_token(self):
+    def get_token(self):
         self.token_index+=1
         if self.token_index>=len(self.tokens):
             return None
         return self.tokens[self.token_index]
 
+    def return_token(self):
+        self.token_index-=1
+        return
 
 ##################################
 ###          PARSER            ###
@@ -175,12 +178,53 @@ class Parser:
     def __init__(self, sourceCode):
         self.lex = Lexer(sourceCode)
         self.lex.make_tokens()
+    
+    def get_token(self):
+        return self.lex.get_token()
+
+    def return_token(self):
+        self.lex.return_token()
+        return
+
+    #startRule
+    def syntax_analyzer(self):
+        self.declarations_state()
+        self.main_function_state()
+        return
+
+
+    def declarations_state():
+        assignments_state()
+        functions_declaration_state()
+        return
+
+
+    def assignments_state():
+        assignments_token = self.get_token()
+        if(assignments_token.value != "#int"):
+            self.return_token()            
+            return
+        
+        assignments_token = self.get_token()
+        if(assignments_token.type != "ID"):
+            print("Error ...")
+            return
+
+        assignments_token = self.get_token()
+        if(assignments_token.value != '='):
+            print("Error")
+
+        #check expression
+        #TO DO
+
+        self.assignments_state()
+        
 
     def while_state():
 
         #condition
 
-        while_token = self.return_token()
+        while_token = self.get_token()
         if(while_token.value != ':'):
             print("Error...")
             return #kill prog
@@ -198,7 +242,7 @@ class Parser:
         self.condition()
 
         #check for :
-        if_token = self.lex.return_token()
+        if_token = self.lex.get_token()
         if(if_token.value != ':'):
             print("Error") 
             return #kill program
@@ -207,7 +251,7 @@ class Parser:
         self.decide_flow() 
 
         #check for elif
-        if_token = self.lex.return_token()
+        if_token = self.lex.get_token()
         if(if_token.value != "elif"):
             return if_token 
 
@@ -218,7 +262,7 @@ class Parser:
             return next_token
 
         #check for ':'
-        if_token = self.lex.return_token()
+        if_token = self.lex.get_token()
         if(if_token.value != ':'):
             print("Error") #kill program
             return 
@@ -228,8 +272,8 @@ class Parser:
         return #if you get a token that you wont use, then you reaturn it
 
 
-    def statement_state:
-        
+    def statement_state():
+        return        
         #simple_statement
         #strctured_statment
 
@@ -249,35 +293,35 @@ class Parser:
 
 
 
-    def condition_state:
+    def condition_state():
 
         return
 
 
-    def print_state:
+    def print_state():
 
-        print_token = self.return_token()     
+        print_token = self.get_token()     
         if(print_token.value != '('):
             print("Error")
             return #kill
 
         #expression
 
-        print_token = self.return_token()
-        if(print_token.value != ')')
+        print_token = self.get_token()
+        if(print_token.value != ')'):
             print("Error")
             return #kill
 
-    def assignment_state:
+    def assignment_state():
 
-        assignment_token = self.return_token()
+        assignment_token = self.get_token()
         if(assignment_token.value != '='):
             print("Error...")
             return
 
 
-    def simple_statement:
-        simple_token = self.return_token()
+    def simple_statement():
+        simple_token = self.get_token()
         #assignment check
         if(simple_token.type == 'ID'):
             self.assignment_state()
@@ -287,24 +331,21 @@ class Parser:
             self.print_state()
 
         #return check
-        if(simple_token.value == "return"):
+        #if(simple_token.value == "return"):
+        
 
-
-    def input_state:
-        input_token = self.return_token()
+    def input_state(self):
+        input_token = self.get_token()
         if(input_token.value != "return"):
             self.return_state()
     
 
-    def return_state:
-        return_token = self.return_token()
-        if(return_token != '('):
+    def return_state(self):
+        get_token = self.get_token()
+        if(get_token.value != '('):
             print("Error... ")
         
 
-    def syntax_analyzer(self):
-        print(self.currentToken)
-        self.currentToken = self.lex.return_token()
 
 #main function
 def main():
