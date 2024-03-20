@@ -12,7 +12,7 @@ KEYWORDS = {
 
 LETTERS=('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 DIGITS=('0123456789')
-OPERATORS = set({'+', '-', '*', '//', '%', '<', '>', '==', '<=', '>=', '!=', '='})
+OPERATORS = ('+', '-', '*', '//', '%', '<', '>', '==', '<=', '>=', '!=', '=')
 SEPARATORS = set({',', ':'})
 GROUPING_SYMBOLS = set({'(', ')', '#{', '#}'})
 COMMENT_SYMBOL = set('##')
@@ -92,7 +92,8 @@ class Lexer:
                 current_token = self.make_number()
             elif self.current_char in LETTERS:
                 current_token = self.make_word()
-            elif self.current_char in OPERATORS:
+            elif self.current_char in OPERATORS or self.current_char=='!'or self.current_char=='/':
+                
                 current_token = self.make_operators()
             elif self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
                 current_token = self.make_group_symbols()
@@ -139,10 +140,12 @@ class Lexer:
 
 
     def make_operators(self):
-        result=''
-        while self.current_char is not None and self.current_char in OPERATORS:
-                result += self.current_char
-                self.advance()
+        result =''
+        while self.current_char is not None or (self.current_char in OPERATORS or result + self.current_char in OPERATORS):
+            result += self.current_char
+            self.advance()
+            if result == "//" or result == "!=":
+                break
         return Token('OPERATOR', result, self.line)
        
 
@@ -238,7 +241,7 @@ class Parser:
 
 ##############################################################
 
-    def while_state():
+    def while_state(self):
 
         #condition
 
@@ -253,7 +256,7 @@ class Parser:
 
 
 
-    def if_state():
+    def if_state(self):
         #since you are inside the if_block then you know that the previous token was "if" 
 
         #check for condition
@@ -316,7 +319,7 @@ class Parser:
         return
 
 
-    def print_state():
+    def print_state(self):
 
         print_token = self.get_token()     
         if(print_token.value != '('):
@@ -330,7 +333,7 @@ class Parser:
             print("Error")
             return #kill
 
-    def assignment_state():
+    def assignment_state(self):
 
         assignment_token = self.get_token()
         if(assignment_token.value != '='):
@@ -338,7 +341,7 @@ class Parser:
             return
 
 
-    def simple_statement():
+    def simple_statement(self):
         simple_token = self.get_token()
         #assignment check
         if(simple_token.type == 'ID'):
@@ -367,10 +370,10 @@ class Parser:
 
 #main function
 def main():
-    inputFilePath = sys.argv[-1]
-    sourceCode = open(inputFilePath).read()
-    par = Parser(sourceCode)
-    par.syntax_analyzer()
-
+    
+        print("mphkame ")
+    
+    
+    
 if __name__ == "__main__":
     main()
