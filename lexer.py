@@ -92,7 +92,7 @@ class Lexer:
                 current_token = self.make_number()
             elif self.current_char in LETTERS:
                 current_token = self.make_word()
-            elif self.current_char in OPERATORS or self.current_char=='!'or self.current_char=='/':
+            elif self.current_char in OPERATORS or self.current_char=='/' or self.current_char=='!':
                 
                 current_token = self.make_operators()
             elif self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
@@ -141,9 +141,15 @@ class Lexer:
 
     def make_operators(self):
         result =''
-        while self.current_char is not None or (self.current_char in OPERATORS or result + self.current_char in OPERATORS):
+        while self.current_char is not None or  self.current_char in OPERATORS :
             result += self.current_char
             self.advance()
+            if(self.current_char in DIGITS):
+                result+=str(self.make_number().value)
+                #if (int(result)<-32767 or int(result)>32767)    :
+                 #   print("number out of bounderies")
+                 #   exit()
+               # return Token('INT',int(result),self.line)
             if result == "//" or result == "!=":
                 break
         return Token('OPERATOR', result, self.line)
@@ -151,9 +157,13 @@ class Lexer:
 
     def make_group_symbols(self):
         result=''
+        
+
         while self.current_char is not None and self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
                 result += self.current_char
                 self.advance()
+                
+
                 if self.current_char=='{' or self.current_char=='}':
                     result+=self.current_char
                     return Token('GROUP_SYMBOL',result, self.line)
