@@ -120,7 +120,7 @@ class Lexer:
         if result in KEYWORDS:
             return Token('keyword', result, self.line)
         else:        
-            return Token('WORD', result, self.line)
+            return Token('ID', result, self.line)
 
 
     def make_number(self):
@@ -189,36 +189,54 @@ class Parser:
     #startRule
     def syntax_analyzer(self):
         self.declarations_state()
-        self.main_function_state()
+        #self.main_function_state() to be done
         return
 
 
-    def declarations_state():
-        assignments_state()
-        functions_declaration_state()
+    def declarations_state(self):
+        declarations_token = self.get_token()
+
+        while(declarations_token.value != "#def"):
+            if(declarations_token.value == "#int"):
+                self.return_token()
+                self.assignments_state()
+            elif(declarations_token.value == "def"):
+                #functions_declaration_state
+                continue
+            else:
+                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
+                exit()
         return
 
 
-    def assignments_state():
+    def assignments_state(self):
         assignments_token = self.get_token()
-        if(assignments_token.value != "#int"):
-            self.return_token()            
-            return
+        while(assignments_token.value == "#int"):
+            if(assignments_token.type != "ID"):
+                print("Error at line ", assignments_token.line ,". Expected variable name.")
+                exit()
+            assignments_token = self.get_token()
+            if(assignments_token.value != '='):
+                print("Error at line ", assignments_token.line ,". Expected '='.")
         
-        assignments_token = self.get_token()
-        if(assignments_token.type != "ID"):
-            print("Error ...")
-            return
-
-        assignments_token = self.get_token()
-        if(assignments_token.value != '='):
-            print("Error")
-
-        #check expression
-        #TO DO
+            #check expression
+            self.expression()
 
         self.assignments_state()
         
+    def expression(self):
+        expression_token = self.get_token()
+        if(expression_token.value == '('):
+            expression_token = self.get_token()
+        elif(expression_token.type == "ID"):
+            self.expression
+            
+        
+        return
+
+
+
+##############################################################
 
     def while_state():
 
