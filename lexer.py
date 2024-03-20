@@ -144,12 +144,7 @@ class Lexer:
         while self.current_char is not None or  self.current_char in OPERATORS :
             result += self.current_char
             self.advance()
-            if(self.current_char in DIGITS):
-                result+=str(self.make_number().value)
-                #if (int(result)<-32767 or int(result)>32767)    :
-                 #   print("number out of bounderies")
-                 #   exit()
-               # return Token('INT',int(result),self.line)
+            
             if result == "//" or result == "!=":
                 break
         return Token('OPERATOR', result, self.line)
