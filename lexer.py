@@ -84,7 +84,7 @@ class Lexer:
         self.advance()
 
         while self.current_char!=None:
-            if self.current_char == '\t' or self.current_char == ' ':
+            if self.current_char == '\t' or self.current_char == ' ' or self.current_char =='[' or self.current_char == ']':
                 self.advance()
                 continue
             elif self.current_char in DIGITS :
