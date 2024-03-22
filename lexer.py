@@ -205,8 +205,10 @@ class Lexer:
                     while self.current_char is not None and self.current_char in LETTERS:
                         result+=self.current_char
                         self.advance()
-                    return Token ('keyword',result,self.line)
-                    
+                    if result in KEYWORDS:    
+                        return Token ('keyword',result,self.line)
+                    else:
+                        return [], Illegalchar("in keyword")
         return Token('GROUP_SYMBOL', result, self.line)
     
     def get_token(self):
