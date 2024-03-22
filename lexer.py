@@ -110,11 +110,10 @@ class Lexer:
                     self.advance()
                     current_token= Token('OPERATOR', special_result, self.line)
                 
-            elif self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
+            elif self.current_char=='#':
                 current_token = self.make_group_symbols()
-            elif self.current_char in COMMENT_SYMBOL:
-                self.advance()
-                continue # todo self.comment 
+            elif self.current_char in GROUPING_SYMBOLS:
+                current_token=self.make_group_symbols()
             elif self.current_char == '\n':
                 self.line+=1
                 self.advance()
@@ -186,30 +185,39 @@ class Lexer:
             return None
    
 
+    
     def make_group_symbols(self):
-        result=''
-        
+        result = ''
 
-        while self.current_char is not None and self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
-                result += self.current_char
-                self.advance()
+        while self.current_char is not None:
+            result += self.current_char
+            self.advance()
+
+            if result == '#' and self.current_char == '#':
+             result += self.current_char
+             self.advance()
+             return Token('COMMENT_SYMBOL', result, self.line)
+            if result =='#' and (self.current_char=='{' or self.current_char=='}'):
+                result+=self.current_char
+                return Token('GROUP_SYTMBOL',result,self.line)
+            if result in GROUPING_SYMBOLS  :
+                return Token('GROUP_SYMBOL', result, self.line)
+
+            
+
+            if result=='#' and self.current_char in LETTERS:
+                 while self.current_char is not None and self.current_char in LETTERS:
+                    result += self.current_char
+                    self.advance()
+            if result in KEYWORDS:
+                return Token('keyword', result, self.line)
+            else:
+                print(" SYNTAX ERRO")
+                exit()
                 
 
-                if self.current_char=='{' or self.current_char=='}':
-                    result+=self.current_char
-                    return Token('GROUP_SYMBOL',result, self.line)
-                elif self.current_char=='#':
-                    result +=self.current_char
-                    return Token('COMMENT_SYMBOL',result, self.line)
-                elif self.current_char in LETTERS:
-                    while self.current_char is not None and self.current_char in LETTERS:
-                        result+=self.current_char
-                        self.advance()
-                    if result in KEYWORDS:    
-                        return Token ('keyword',result,self.line)
-                    else:
-                        return [], Illegalchar("in keyword")
         return Token('GROUP_SYMBOL', result, self.line)
+
     
     def get_token(self):
         self.token_index+=1
