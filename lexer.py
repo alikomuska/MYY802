@@ -12,7 +12,7 @@ KEYWORDS = {
 
 LETTERS=('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 DIGITS=('0123456789')
-OPERATORS = ('+', '-', '*', '//', '%', '<', '>', '==', '<=', '>=', '!=', '=')
+OPERATORS = ('+', '-', '*', '%', '<', '>', '==', '<=', '>=', '=')
 SEPARATORS = set({',', ':'})
 GROUPING_SYMBOLS = set({'(', ')', '#{', '#}'})
 COMMENT_SYMBOL = set('##')
@@ -81,7 +81,7 @@ class Lexer:
 
 
     def make_tokens(self):
-       
+        special_result=''
         self.advance()
 
         while self.current_char!=None:
@@ -92,9 +92,24 @@ class Lexer:
                 current_token = self.make_number()
             elif self.current_char in LETTERS:
                 current_token = self.make_word()
-            elif self.current_char in OPERATORS or self.current_char=='/' or self.current_char=='!':
+            elif self.current_char in OPERATORS :
                 
                 current_token = self.make_operators()
+            elif self.current_char=="!" :
+                special_result+=self.current_char
+                self.advance()
+                if self.current_char=='=':
+                    special_result+=self.current_char
+                    self.advance()
+                    current_token=Token('OPERATOR', special_result, self.line)
+            elif self.current_char=='/':
+                special_result+=self.current_char
+                self.advance()
+                if self.current_char=='/':
+                    special_result+=self.current_char
+                    self.advance()
+                    current_token= Token('OPERATOR', special_result, self.line)
+                
             elif self.current_char in GROUPING_SYMBOLS|COMMENT_SYMBOL:
                 current_token = self.make_group_symbols()
             elif self.current_char in COMMENT_SYMBOL:
@@ -130,10 +145,14 @@ class Lexer:
         while self.current_char is not None and self.current_char in DIGITS :
             num_str += self.current_char
             self.advance()
-    
+        
+        #check the range of the number
+        number_value = int(num_str)
+        if number_value < -36758 or number_value > 36758:
+            return Token('ILLEGAL', num_str, self.line)
         # Check if the next character is an illegal character
         if self.current_char is not None and self.current_char in LETTERS:
-            return [], Illegalchar("'" + self.current_char + "'")
+            return [], Illegalchar("'"+self.current_char+"'")
 
         # Create a token for the integer value
         return Token('INT', int(num_str), self.line)
@@ -141,14 +160,31 @@ class Lexer:
 
     def make_operators(self):
         result =''
-        while self.current_char is not None or  self.current_char in OPERATORS :
+        while self.current_char is not None and  self.current_char in OPERATORS :
             result += self.current_char
+            if result == '-' and self.peek() in DIGITS:
+                self.advance() 
+                num_token = self.make_number()  # Treat it as a negative number
+                num_token.value = -int(num_token.value)  # Negate the value
+                return num_token # Consume the digit
+                
+        
             self.advance()
-            
-            if result == "//" or result == "!=":
-                break
+           
+            if result == "/" or result == "!":
+                result+=self.current_char
+               
+        
+
         return Token('OPERATOR', result, self.line)
-       
+         
+    def peek(self):
+        peek_pos = self.pos + 1
+        if peek_pos < len(self.sourceCode):
+            return self.sourceCode[peek_pos]
+        else:
+            return None
+   
 
     def make_group_symbols(self):
         result=''
@@ -165,6 +201,12 @@ class Lexer:
                 elif self.current_char=='#':
                     result +=self.current_char
                     return Token('COMMENT_SYMBOL',result, self.line)
+                elif self.current_char in LETTERS:
+                    while self.current_char is not None and self.current_char in LETTERS:
+                        result+=self.current_char
+                        self.advance()
+                    return Token ('keyword',result,self.line)
+                    
         return Token('GROUP_SYMBOL', result, self.line)
     
     def get_token(self):
