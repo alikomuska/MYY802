@@ -257,6 +257,7 @@ class Parser:
     #to be tested
     def declarations_state(self):
         while(self.current_token != "#def"):
+            self.advance_token()
             if(self.current_token == "#int"):
                 self.assignments_state()
             elif(self.current_token == "def"):
@@ -264,13 +265,13 @@ class Parser:
             else:
                 print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
                 exit()
-            self.get_next_token() #not yet sure if needed
+            self.advance_token() #not yet sure if needed
         return
 
     #to be tested
     def assignments_state(self):
         #no need to check #int
-        self.get_next_token()
+        self.advance_token()
         if(self.current_token.value != "ID"):
             print("Error at line ", self.current.line ,". Expected variable name.")
             exit()
@@ -284,14 +285,38 @@ class Parser:
     #to be done
     def functions_declaration_state(self):
         #no need to check #def
+        self.advance_token()
+        if(self.current_token.type != "ID"):
+            print("Error ...")
+            exit()
+        self.advance_token()
+        if(self.current_token.value != '('):
+            print("Error ...")
+            exit()
+        self.parse_id_list()
+
+        self.advance_token()
+        if(self.current_token.value != "#{"):
+            print("Error...")
+            exit()
+        self.advance_token()
+        #delcarations
+        #functions
+        #globals
+        #code_block
+
+        self.advance_token()
+        if(self.current_token.value != "#}"):
+            print("Error ..")
+            exit()
+
     return 
     
-
+    #to be done
     def parse_id_list(self):
-        id_list = []
-
+        self.advance_token()
         # Check if the current token is an ID
-        if self.current_token.type == 'ID':
+        if( self.current_token.type == 'ID'):
             # Add the first identifier to the list
             id_list.append(self.current_token.value)
             self.advance_tokens()
@@ -301,14 +326,13 @@ class Parser:
                 self.advance_tokens()  # Consume the comma
                 if self.current_token.type == 'ID':
                     # Add the identifier to the list
-                    id_list.append(self.current_token.value)
                     self.advance_tokens()
                 else:
                     # If there's a comma but no following identifier, raise an error
                     raise SyntaxError("Expected identifier after ','")
         
 
-        return id_list
+        return
     
     def parse_declaration_line(self):
         if self.current_token.type == '#int':
