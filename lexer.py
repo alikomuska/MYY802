@@ -258,6 +258,61 @@ class Parser:
         self.declarations_state()
         #self.main_function_state() to be done
         return
+    
+
+
+    #to be tested
+    def declarations_state(self):
+        declarations_token = self.get_next_token()
+
+        while(declarations_token.value != "#def"):
+            if(declarations_token.value == "#int"):
+                self.return_token()
+        while(self.current_token != "#def"):
+            if(self.current_token == "#int"):
+                self.assignments_state()
+            elif(declarations_token.value == "def"):
+                #functions_declaration_state
+                continue
+            elif(self.current_token == "def"):
+                functions_declaration_state()
+            else:
+                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
+                exit()
+            self.get_next_token() #not yet sure if needed
+        return
+    
+    
+    
+    
+    
+    
+#to be tested
+    def assignments_state(self):
+        assignments_token = self.get_next_token()
+        while(assignments_token.value == "#int"):
+            if(assignments_token.type != "ID"):
+                print("Error at line ", assignments_token.line ,". Expected variable name.")
+                exit()
+            assignments_token = self.get_next_token()
+            if(assignments_token.value != '='):
+                print("Error at line ", assignments_token.line ,". Expected '='.")
+        #no need to check #int
+        self.get_next_token()
+        if(self.current_token.value != "ID"):
+            print("Error at line ", self.current.line ,". Expected variable name.")
+            exit()
+        self.get_next_token()
+        if(assignments_token.value != '='):
+            print("Error at line ", self.current.line ,". Expected '='.")
+            exit()
+        self.expression()
+        return
+
+    
+    
+    
+    
     #############
     #    ID LIST #
     #############    
@@ -318,52 +373,8 @@ class Parser:
         ################### 
     
     
-    def declarations_state(self):
-        declarations_token = self.get_next_token()
-
-        while(declarations_token.value != "#def"):
-            if(declarations_token.value == "#int"):
-                self.return_token()
-                self.assignments_state()
-            elif(declarations_token.value == "def"):
-                #functions_declaration_state
-                continue
-            else:
-                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
-                exit()
-        return
+     #to be tested
     
-    
-    
-    
-    
-    
-
-    def assignments_state(self):
-        assignments_token = self.get_next_token()
-        while(assignments_token.value == "#int"):
-            if(assignments_token.type != "ID"):
-                print("Error at line ", assignments_token.line ,". Expected variable name.")
-                exit()
-            assignments_token = self.get_next_token()
-            if(assignments_token.value != '='):
-                print("Error at line ", assignments_token.line ,". Expected '='.")
-        
-            #check expression
-            self.expression()
-
-        self.assignments_state()
-        
-    def expression(self):
-        expression_token = self.get_next_token()
-        if(expression_token.value == '('):
-            expression_token = self.get_next_token()
-        elif(expression_token.type == "ID"):
-            self.expression
-            
-        
-        return
-
 
 
 ##############################################################
