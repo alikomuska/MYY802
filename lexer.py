@@ -237,23 +237,35 @@ class Parser:
 
     def __init__(self,sourceCode):
         self.lex = Lexer(sourceCode)
-        self.current_token = None
-        self.next_token = None
-        self.get_next_tokens()
+        self.current_token =self.lex.get_next_token()
+        self.next_token = self.lex.get_next_token()
     
-    def get_next_tokens(self):
+    def advance_tokens(self):
         self.current_token= self.next_token
         self.next_token = self.lexer.get_next_token()
     
+   
+    
+    
+    
+    
+    def return_token(self):
+        self.lex.return_token()
+        return
+
+    #startRule
+    def syntax_analyzer(self):
+        self.declarations_state()
+        #self.main_function_state() to be done
+        return
     #############
     #    ID LIST #
     #############    
-    
-    
+
     def parse_id_list(self):
         id_list = []
 
-        # Check if the current token is an identifier
+        # Check if the current token is an ID
         if self.current_token.type == 'ID':
             # Add the first identifier to the list
             id_list.append(self.current_token.value)
@@ -269,29 +281,43 @@ class Parser:
                 else:
                     # If there's a comma but no following identifier, raise an error
                     raise SyntaxError("Expected identifier after ','")
-        elif self.current_token.type == ';':
-            # If the current token is a semicolon, it means id_list is empty
-            pass
-        else:
-            # If the current token is neither an identifier nor a semicolon, raise an error
-            raise SyntaxError("Expected identifier or ';'")
+        
 
         return id_list
     
-    
-    
-    
-    def return_token(self):
-        self.lex.return_token()
-        return
-
-    #startRule
-    def syntax_analyzer(self):
-        self.declarations_state()
-        #self.main_function_state() to be done
-        return
 
 
+
+         ####################
+    #     DECLARATION_LINE     #
+         ############# ###### 
+    def parse_declaration_line(self):
+        if self.current_token.type == '#int':
+            self.advance_tokens()  # Consume '#int' token
+            self.id_list = self.parse_id_list()  # Parse id_list
+            
+        else:
+            raise SyntaxError("Expected '#int' at the beginning of declaration_line")
+
+
+
+
+
+        ####################
+    #    DECLARATIONS   #
+        ################### 
+
+    #TO EKANE O ALEKAN 
+
+
+
+
+
+        ####################
+    #    DECLARATION_STATE   #
+        ################### 
+    
+    
     def declarations_state(self):
         declarations_token = self.get_next_token()
 
@@ -306,7 +332,12 @@ class Parser:
                 print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
                 exit()
         return
-
+    
+    
+    
+    
+    
+    
 
     def assignments_state(self):
         assignments_token = self.get_next_token()
