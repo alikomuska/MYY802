@@ -219,7 +219,7 @@ class Lexer:
         return Token('GROUP_SYMBOL', result, self.line)
 
     
-    def get_token(self):
+    def get_next_token(self):
         self.token_index+=1
         if self.token_index>=len(self.tokens):
             return None
@@ -235,13 +235,52 @@ class Lexer:
 
 class Parser:
 
-    def __init__(self, sourceCode):
+    def __init__(self,sourceCode):
         self.lex = Lexer(sourceCode)
-        self.lex.make_tokens()
+        self.current_token = None
+        self.next_token = None
+        self.get_next_tokens()
     
-    def get_token(self):
-        return self.lex.get_token()
+    def get_next_tokens(self):
+        self.current_token= self.next_token
+        self.next_token = self.lexer.get_next_token()
+    
+    #############
+    #    ID LIST #
+    #############    
+    
+    
+    def parse_id_list(self):
+        id_list = []
 
+        # Check if the current token is an identifier
+        if self.current_token.type == 'ID':
+            # Add the first identifier to the list
+            id_list.append(self.current_token.value)
+            self.advance_tokens()
+
+            # Check for additional identifiers separated by commas
+            while self.current_token.type == ',':
+                self.advance_tokens()  # Consume the comma
+                if self.current_token.type == 'ID':
+                    # Add the identifier to the list
+                    id_list.append(self.current_token.value)
+                    self.advance_tokens()
+                else:
+                    # If there's a comma but no following identifier, raise an error
+                    raise SyntaxError("Expected identifier after ','")
+        elif self.current_token.type == ';':
+            # If the current token is a semicolon, it means id_list is empty
+            pass
+        else:
+            # If the current token is neither an identifier nor a semicolon, raise an error
+            raise SyntaxError("Expected identifier or ';'")
+
+        return id_list
+    
+    
+    
+    
     def return_token(self):
         self.lex.return_token()
         return
@@ -254,7 +293,7 @@ class Parser:
 
 
     def declarations_state(self):
-        declarations_token = self.get_token()
+        declarations_token = self.get_next_token()
 
         while(declarations_token.value != "#def"):
             if(declarations_token.value == "#int"):
@@ -270,12 +309,12 @@ class Parser:
 
 
     def assignments_state(self):
-        assignments_token = self.get_token()
+        assignments_token = self.get_next_token()
         while(assignments_token.value == "#int"):
             if(assignments_token.type != "ID"):
                 print("Error at line ", assignments_token.line ,". Expected variable name.")
                 exit()
-            assignments_token = self.get_token()
+            assignments_token = self.get_next_token()
             if(assignments_token.value != '='):
                 print("Error at line ", assignments_token.line ,". Expected '='.")
         
@@ -285,9 +324,9 @@ class Parser:
         self.assignments_state()
         
     def expression(self):
-        expression_token = self.get_token()
+        expression_token = self.get_next_token()
         if(expression_token.value == '('):
-            expression_token = self.get_token()
+            expression_token = self.get_next_token()
         elif(expression_token.type == "ID"):
             self.expression
             
@@ -302,7 +341,7 @@ class Parser:
 
         #condition
 
-        while_token = self.get_token()
+        while_token = self.get_next_token()
         if(while_token.value != ':'):
             print("Error...")
             return #kill prog
@@ -320,7 +359,7 @@ class Parser:
         self.condition()
 
         #check for :
-        if_token = self.lex.get_token()
+        if_token = self.lex.get_next_token()
         if(if_token.value != ':'):
             print("Error") 
             return #kill program
@@ -329,7 +368,7 @@ class Parser:
         self.decide_flow() 
 
         #check for elif
-        if_token = self.lex.get_token()
+        if_token = self.lex.get_next_token()
         if(if_token.value != "elif"):
             return if_token 
 
@@ -340,7 +379,7 @@ class Parser:
             return next_token
 
         #check for ':'
-        if_token = self.lex.get_token()
+        if_token = self.lex.get_next_token()
         if(if_token.value != ':'):
             print("Error") #kill program
             return 
@@ -378,28 +417,28 @@ class Parser:
 
     def print_state(self):
 
-        print_token = self.get_token()     
+        print_token = self.get_next_token()     
         if(print_token.value != '('):
             print("Error")
             return #kill
 
         #expression
 
-        print_token = self.get_token()
+        print_token = self.get_next_token()
         if(print_token.value != ')'):
             print("Error")
             return #kill
 
     def assignment_state(self):
 
-        assignment_token = self.get_token()
+        assignment_token = self.get_next_token()
         if(assignment_token.value != '='):
             print("Error...")
             return
 
 
     def simple_statement(self):
-        simple_token = self.get_token()
+        simple_token = self.get_next_token()
         #assignment check
         if(simple_token.type == 'ID'):
             self.assignment_state()
@@ -413,14 +452,14 @@ class Parser:
         
 
     def input_state(self):
-        input_token = self.get_token()
+        input_token = self.get_next_token()
         if(input_token.value != "return"):
             self.return_state()
     
 
     def return_state(self):
-        get_token = self.get_token()
-        if(get_token.value != '('):
+        get_next_token = self.get_next_token()
+        if(get_next_token.value != '('):
             print("Error... ")
         
 
