@@ -244,11 +244,6 @@ class Parser:
         self.current_token= self.next_token
         self.next_token = self.lexer.get_next_token()
     
-   
-    
-    
-    
-    
     def return_token(self):
         self.lex.return_token()
         return
@@ -258,22 +253,12 @@ class Parser:
         self.declarations_state()
         #self.main_function_state() to be done
         return
-    
-
 
     #to be tested
     def declarations_state(self):
-        declarations_token = self.get_next_token()
-
-        while(declarations_token.value != "#def"):
-            if(declarations_token.value == "#int"):
-                self.return_token()
         while(self.current_token != "#def"):
             if(self.current_token == "#int"):
                 self.assignments_state()
-            elif(declarations_token.value == "def"):
-                #functions_declaration_state
-                continue
             elif(self.current_token == "def"):
                 functions_declaration_state()
             else:
@@ -281,22 +266,9 @@ class Parser:
                 exit()
             self.get_next_token() #not yet sure if needed
         return
-    
-    
-    
-    
-    
-    
-#to be tested
+
+    #to be tested
     def assignments_state(self):
-        assignments_token = self.get_next_token()
-        while(assignments_token.value == "#int"):
-            if(assignments_token.type != "ID"):
-                print("Error at line ", assignments_token.line ,". Expected variable name.")
-                exit()
-            assignments_token = self.get_next_token()
-            if(assignments_token.value != '='):
-                print("Error at line ", assignments_token.line ,". Expected '='.")
         #no need to check #int
         self.get_next_token()
         if(self.current_token.value != "ID"):
@@ -309,13 +281,11 @@ class Parser:
         self.expression()
         return
 
+    #to be done
+    def functions_declaration_state(self):
+        #no need to check #def
+    return 
     
-    
-    
-    
-    #############
-    #    ID LIST #
-    #############    
 
     def parse_id_list(self):
         id_list = []
@@ -340,12 +310,6 @@ class Parser:
 
         return id_list
     
-
-
-
-         ####################
-    #     DECLARATION_LINE     #
-         ############# ###### 
     def parse_declaration_line(self):
         if self.current_token.type == '#int':
             self.advance_tokens()  # Consume '#int' token
@@ -353,28 +317,6 @@ class Parser:
             
         else:
             raise SyntaxError("Expected '#int' at the beginning of declaration_line")
-
-
-
-
-
-        ####################
-    #    DECLARATIONS   #
-        ################### 
-
-    #TO EKANE O ALEKAN 
-
-
-
-
-
-        ####################
-    #    DECLARATION_STATE   #
-        ################### 
-    
-    
-     #to be tested
-    
 
 
 ##############################################################
