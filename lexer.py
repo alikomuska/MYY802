@@ -274,8 +274,7 @@ class Parser:
             elif(declarations_token.value == "def"):
                 #functions_declaration_state
                 continue
-            elif(self.current_token == "def"):
-                functions_declaration_state()
+            
             else:
                 print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
                 exit()
