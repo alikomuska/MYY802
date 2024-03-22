@@ -237,19 +237,62 @@ class Parser:
 
     def __init__(self,sourceCode):
         self.lex = Lexer(sourceCode)
-        self.current_token = None
-        self.next_token = None
-        self.get_next_tokens()
+        self.current_token = self.lex.get_next_token()
+        self.next_token = self.lex.get_next_token()
     
-    def get_next_tokens(self):
+    def get_next_token(self):
         self.current_token= self.next_token
         self.next_token = self.lexer.get_next_token()
     
-    #############
-    #    ID LIST #
-    #############    
-    
-    
+    #startRule
+    def syntax_analyzer(self):
+        self.declarations_state()
+        #self.main_function_state() to be done
+        return
+
+    #to be tested
+    def declarations_state(self):
+        while(self.current_token != "#def"):
+            if(self.current_token == "#int"):
+                self.assignments_state()
+            elif(self.current_token == "def"):
+                functions_declaration_state()
+            else:
+                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
+                exit()
+            self.get_next_token() #not yet sure if needed
+        return
+
+    #to be tested
+    def assignments_state(self):
+        #no need to check #int
+        self.get_next_token()
+        if(self.current_token.value != "ID"):
+            print("Error at line ", self.current.line ,". Expected variable name.")
+            exit()
+        self.get_next_token()
+        if(assignments_token.value != '='):
+            print("Error at line ", self.current.line ,". Expected '='.")
+            exit()
+        self.expression()
+        return
+            
+    #to be done
+    def functions_declaration_state(self):
+        #no need to check #def
+        
+
+    #to be done
+    def expression(self):
+        expression_token = self.get_next_token()
+        if(expression_token.value == '('):
+            expression_token = self.get_next_token()
+        elif(expression_token.type == "ID"):
+            self.expression
+            
+        
+        return
+
     def parse_id_list(self):
         id_list = []
 
@@ -277,63 +320,7 @@ class Parser:
             raise SyntaxError("Expected identifier or ';'")
 
         return id_list
-    
-    
-    
-    
-    def return_token(self):
-        self.lex.return_token()
-        return
-
-    #startRule
-    def syntax_analyzer(self):
-        self.declarations_state()
-        #self.main_function_state() to be done
-        return
-
-
-    def declarations_state(self):
-        declarations_token = self.get_next_token()
-
-        while(declarations_token.value != "#def"):
-            if(declarations_token.value == "#int"):
-                self.return_token()
-                self.assignments_state()
-            elif(declarations_token.value == "def"):
-                #functions_declaration_state
-                continue
-            else:
-                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
-                exit()
-        return
-
-
-    def assignments_state(self):
-        assignments_token = self.get_next_token()
-        while(assignments_token.value == "#int"):
-            if(assignments_token.type != "ID"):
-                print("Error at line ", assignments_token.line ,". Expected variable name.")
-                exit()
-            assignments_token = self.get_next_token()
-            if(assignments_token.value != '='):
-                print("Error at line ", assignments_token.line ,". Expected '='.")
-        
-            #check expression
-            self.expression()
-
-        self.assignments_state()
-        
-    def expression(self):
-        expression_token = self.get_next_token()
-        if(expression_token.value == '('):
-            expression_token = self.get_next_token()
-        elif(expression_token.type == "ID"):
-            self.expression
-            
-        
-        return
-
-
+ 
 
 ##############################################################
 
