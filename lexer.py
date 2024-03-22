@@ -237,7 +237,6 @@ class Parser:
 
     def __init__(self,sourceCode):
         self.lex = Lexer(sourceCode)
-<<<<<<< HEAD
         self.current_token =self.lex.get_next_token()
         self.next_token = self.lex.get_next_token()
     
@@ -254,69 +253,14 @@ class Parser:
         self.lex.return_token()
         return
 
-=======
-        self.current_token = self.lex.get_next_token()
-        self.next_token = self.lex.get_next_token()
-    
-    def get_next_token(self):
-        self.current_token= self.next_token
-        self.next_token = self.lexer.get_next_token()
-    
->>>>>>> 28e7277488796e73bcccaae4924594976022a94b
     #startRule
     def syntax_analyzer(self):
         self.declarations_state()
         #self.main_function_state() to be done
         return
-<<<<<<< HEAD
     #############
     #    ID LIST #
     #############    
-=======
-
-    #to be tested
-    def declarations_state(self):
-        while(self.current_token != "#def"):
-            if(self.current_token == "#int"):
-                self.assignments_state()
-            elif(self.current_token == "def"):
-                functions_declaration_state()
-            else:
-                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
-                exit()
-            self.get_next_token() #not yet sure if needed
-        return
-
-    #to be tested
-    def assignments_state(self):
-        #no need to check #int
-        self.get_next_token()
-        if(self.current_token.value != "ID"):
-            print("Error at line ", self.current.line ,". Expected variable name.")
-            exit()
-        self.get_next_token()
-        if(assignments_token.value != '='):
-            print("Error at line ", self.current.line ,". Expected '='.")
-            exit()
-        self.expression()
-        return
-            
-    #to be done
-    def functions_declaration_state(self):
-        #no need to check #def
-        
-
-    #to be done
-    def expression(self):
-        expression_token = self.get_next_token()
-        if(expression_token.value == '('):
-            expression_token = self.get_next_token()
-        elif(expression_token.type == "ID"):
-            self.expression
-            
-        
-        return
->>>>>>> 28e7277488796e73bcccaae4924594976022a94b
 
     def parse_id_list(self):
         id_list = []
@@ -340,7 +284,6 @@ class Parser:
         
 
         return id_list
-<<<<<<< HEAD
     
 
 
@@ -422,9 +365,6 @@ class Parser:
         return
 
 
-=======
- 
->>>>>>> 28e7277488796e73bcccaae4924594976022a94b
 
 ##############################################################
 
