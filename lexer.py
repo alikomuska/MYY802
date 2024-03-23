@@ -271,7 +271,7 @@ class Parser:
             print("Error at line ", self.current.line ,". Expected variable name.")
             exit()
         self.get_next_token()
-        if(assignments_token.value != '='):
+        if(self.current_token.value != '='):
             print("Error at line ", self.current.line ,". Expected '='.")
             exit()
         self.expression()
@@ -320,7 +320,7 @@ class Parser:
             self.advance_token()
             self.functions_declaration_state()
 
-    return 
+        return 
     
     #to be done
     def main_function_state(self):
@@ -334,7 +334,7 @@ class Parser:
         #globals
         #code_block
 
-    return 
+        return 
     
     #to be done
     def parse_id_list(self):
@@ -342,18 +342,17 @@ class Parser:
         # Check if the current token is an ID
         if( self.current_token.type == 'ID'):
             # Add the first identifier to the list
-            id_list.append(self.current_token.value)
+            
             self.advance_tokens()
-
+            #to be done /checked 
             # Check for additional identifiers separated by commas
-            while self.current_token.type == ',':
+            while self.current_token.value == ',':
                 self.advance_tokens()  # Consume the comma
-                if self.current_token.type == 'ID':
-                    # Add the identifier to the list
-                    self.advance_tokens()
-                else:
+                if self.current_token.type != 'ID':
                     # If there's a comma but no following identifier, raise an error
-                    raise SyntaxError("Expected identifier after ','")
+                    print("Expected identifier after ','")
+                    exit()
+                self.advance_tokens()    
         return
     
     def parse_declaration_line(self):
