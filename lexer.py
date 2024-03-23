@@ -251,7 +251,10 @@ class Parser:
     #startRule
     def syntax_analyzer(self):
         self.declarations_state()
-        #self.main_function_state() to be done
+        self.advance_token()
+        if(self.current_token.value != "#def"):
+            print("Error at line", self.current_token.line, ". Main function missing")
+        self.main_function_state()
         return
 
     #to be tested
@@ -284,7 +287,7 @@ class Parser:
 
     #to be done
     def functions_declaration_state(self):
-        #no need to check #def
+        #no need to check def
         self.advance_token()
         if(self.current_token.type != "ID"):
             print("Error ...")
@@ -313,6 +316,27 @@ class Parser:
     return 
     
     #to be done
+    def main_function_state(self):
+        #no need to check #def
+        self.advance_token()
+        if(self.current_token.type != "main"):
+            print("Error ...")
+            exit()
+        self.advance_token()
+        if(self.current_token.value != '('):
+            print("Error ...")
+            exit()
+        self.parse_id_list() #i dont know if main get take arguments. If not this line is not needed.
+
+        self.advance_token()
+        #delcarations
+        #functions
+        #globals
+        #code_block
+
+    return 
+    
+    #to be done
     def parse_id_list(self):
         self.advance_token()
         # Check if the current token is an ID
@@ -330,8 +354,6 @@ class Parser:
                 else:
                     # If there's a comma but no following identifier, raise an error
                     raise SyntaxError("Expected identifier after ','")
-        
-
         return
     
     def parse_declaration_line(self):
