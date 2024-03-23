@@ -310,7 +310,9 @@ class Parser:
         self.function_declaration_state()
         
         #globals
+
         #code_block
+        self.code_block_state(0) #is_main = 0
 
         self.advance_token()
         if(self.current_token.value != "#}"):
@@ -338,7 +340,9 @@ class Parser:
         self.function_declaration_state()
 
         #globals
+
         #code_block
+        self.code_block_state(1) #is_main = 1
 
         return 
     
@@ -371,6 +375,30 @@ class Parser:
         return 
 
 
+    def code_block_state(self, is_main):
+        self.advance_token()
+
+        
+        if(self.current_token.value == "if"):
+            #if_block
+            return
+        elif(self.current_token.value == "while"):
+            #while
+            return
+        elif(self.current_token.value == "return"):
+            #return
+            return
+        elif(self.current_token.value == "print"):
+            #print
+            return
+        elif(self.current_token.type == "ID"):
+            #input
+            return
+        else:
+            return
+        
+        #if is_main == 0 run until #}
+        #if is_main == 1 run until end of file
 
 ##############################################################
 
