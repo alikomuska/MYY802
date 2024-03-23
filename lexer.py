@@ -400,42 +400,70 @@ class Parser:
         self.advance_token()
 
         if(self.current_token.value == "if"):
-            #if_block
+            self.if_block()
             return
         elif(self.current_token.value == "while"):
-            #while
+            self.while_state()
             return
         elif(self.current_token.value == "return"):
-            #return
+            self.return_state()
             return
         elif(self.current_token.value == "print"):
-            #print
+            self.print_state()
             return
         elif(self.current_token.type == "ID"):
-            #input
+            self.advance_token()
+            if(self.next_token.value == "int"):
+                self.input_state()
+            else:
+                self.assignments_state()
+        else:
+            print("Error at line", self.current.line, ". Code block not ended properly")
+            exit()
+        
+        #### check from here and after
+        #if is_main == 0 run until #}
+        if(is_main == 0 and self.next_token != "#}"):
+            self.code_block_state()
+        else:
+            return
+            
+        #if is_main == 1 run until end of file
+        if(is_main == 1 and self.next_token != ""):
+            print("Compilation done")
             return
         else:
             return
-        
-        #if is_main == 0 run until #}
-        #if is_main == 1 run until end of file
+
+        return 
 
 
-####while, if, print, return , input####
+### while, if, print, return , input ###
 
+    #to be tested
     def while_state(self):
 
-        #condition
+        self.condition()
 
-        while_token = self.get_next_token()
-        if(while_token.value != ':'):
-            print("Error...")
-            return #kill prog
+        self.advance_token()
+        if(self.current.token.value != ":"):
+            print("Error ...")
+            exit()
 
+        has_bracket = 0
+        if(self.next_token.value == "#{"):
+            self.advance_token()
+            has_bracket = 1
 
-        #statments TO DO
+        self.code_block()
 
-
+        if(has_bracket == 1 and self.next_token.value != "#}"):
+            print("Error at line ". self.next_token.line, ". Missing '#}'")
+            exit()
+        elif(has_bracket == 1):
+            self.advance_token()
+            return
+        return
 
 
     def if_state(self):
@@ -460,12 +488,12 @@ class Parser:
 
         #check for elif
         if(self.next_token.value == "elif"):
-            #self.elif_state()
+            self.elif_state()
             return 
 
         #check for else
         if(self.next_token.value == 'else'):
-            #self.self_state
+            self.self_state()
             return
 
         if(has_brackets == 1):
@@ -480,11 +508,7 @@ class Parser:
             self.advance_tokens()
             self.has_brackets=1
 
-
-
         self.expresion()
-
-
 
         if has_brackets==1:    
             if self.next_token.value==')':
@@ -493,19 +517,20 @@ class Parser:
             else:
                 print("Expected ')'")
 
-
-  
         
     def condition(self):
         self.advance_token()
         return
 
 
-
-
-
     def return_state(self):
         self.expresion()
+        return
+
+    def elif_state(self):
+        return
+
+    def else_state(self):
         return
 
 #main function
