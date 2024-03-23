@@ -259,16 +259,8 @@ class Parser:
 
     #to be tested
     def declarations_state(self):
-        while(self.current_token != "#def"):
-            self.advance_token()
-            if(self.current_token == "#int"):
-                self.assignments_state()
-            elif(self.current_token == "def"):
-                functions_declaration_state()
-            else:
-                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
-                exit()
-            self.advance_token() #not yet sure if needed
+        self.assignments_state()
+        self.functions_declaration_state()
         return
 
     #to be tested
@@ -283,9 +275,14 @@ class Parser:
             print("Error at line ", self.current.line ,". Expected '='.")
             exit()
         self.expression()
+
+        if(self.next_token.value == "#int"):
+            self.advance_token()
+            self.assignments_state()
+
         return
 
-    #to be done
+    #to be tested
     def functions_declaration_state(self):
         #no need to check def
         self.advance_token()
@@ -296,6 +293,7 @@ class Parser:
         if(self.current_token.value != '('):
             print("Error ...")
             exit()
+
         self.parse_id_list()
 
         self.advance_token()
@@ -303,8 +301,13 @@ class Parser:
             print("Error...")
             exit()
         self.advance_token()
-        #delcarations
+            
+        #declaraions
+        self.assignments_state()
+
         #functions
+        self.function_declaration_state()
+        
         #globals
         #code_block
 
@@ -312,6 +315,10 @@ class Parser:
         if(self.current_token.value != "#}"):
             print("Error ..")
             exit()
+           
+        if(self.next_token.value == "def"):
+            self.advance_token()
+            self.functions_declaration_state()
 
     return 
     
@@ -319,16 +326,9 @@ class Parser:
     def main_function_state(self):
         #no need to check #def
         self.advance_token()
-        if(self.current_token.type != "main"):
+        if(self.current_token.value != "main"):
             print("Error ...")
             exit()
-        self.advance_token()
-        if(self.current_token.value != '('):
-            print("Error ...")
-            exit()
-        self.parse_id_list() #i dont know if main get take arguments. If not this line is not needed.
-
-        self.advance_token()
         #delcarations
         #functions
         #globals
@@ -360,10 +360,15 @@ class Parser:
         if self.current_token.type == '#int':
             self.advance_tokens()  # Consume '#int' token
             self.id_list = self.parse_id_list()  # Parse id_list
-            
         else:
             raise SyntaxError("Expected '#int' at the beginning of declaration_line")
+        return 
 
+
+    def in_function_declarations():
+        return
+
+    
 
 ##############################################################
 
