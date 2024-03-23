@@ -259,28 +259,8 @@ class Parser:
 
     #to be tested
     def declarations_state(self):
-<<<<<<< HEAD
-        while(self.current_token != "#def"):
-            self.advance_token()
-            if(self.current_token == "#int"):
-                self.assignments_state()
-<<<<<<< HEAD
-            elif(declarations_token.value == "def"):
-                #functions_declaration_state
-                continue
-            
-=======
-            elif(self.current_token == "def"):
-                functions_declaration_state()
->>>>>>> e4a9655af6b93f5f8da52bbdec1965b5ade12274
-            else:
-                print("Error at line ", declarations_token.line,". Expected variable or function declaration before main.")
-                exit()
-            self.advance_token() #not yet sure if needed
-=======
         self.assignments_state()
         self.functions_declaration_state()
->>>>>>> 3d9868fa4a7424bf5f5d786c6b942c38f1e734f7
         return
 
     #to be tested
