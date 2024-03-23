@@ -239,15 +239,36 @@ class Parser:
         self.lex = Lexer(sourceCode)
         self.current_token =self.lex.get_next_token()
         self.next_token = self.lex.get_next_token()
+        if self.current_token.value=="##":
+            self.advance_tokens()
+        
     
     def advance_tokens(self):
         self.current_token= self.next_token
         self.next_token = self.lexer.get_next_token()
-        return
+        
+            
+        
+       
 
     def return_token(self):
         self.lex.return_token()
         return
+
+
+
+
+    def parse_global_statement(self):
+           
+        # Check for the 'global' keyword
+        self.advance()
+        if self.current_token.type != 'keyword' or self.current_token.value != 'global':
+                print("Expected 'global' keyword for global statement")
+
+        self.parse_id_list()
+
+         # Grammar check successful (no data structure returned)
+        return 
 
     #startRule
     def syntax_analyzer(self):
