@@ -468,29 +468,35 @@ class Parser:
         return #if you get a token that you wont use, then you reaturn it
 
     def print_state(self):
-        print_token = self.get_next_token()     
-        if(print_token.value != '('):
-            print("Error")
-            return #kill
-        #expression
-        print_token = self.get_next_token()
-        if(print_token.value != ')'):
-            print("Error")
-            return #kill
+        has_brackets=0
+        if self.next_token.value == '(':
+            self.advance_tokens()
+            self.has_brackets=1
 
 
-    def input_state(self):
-        input_token = self.get_next_token()
-        if(input_token.value != "return"):
-            self.return_state()
-    
 
-    def return_state(self):
-        get_next_token = self.get_next_token()
-        if(get_next_token.value != '('):
-            print("Error... ")
+        self.expresion()
+
+
+
+        if has_brackets==1:    
+            if self.next_token.value==')':
+                self.advance_tokens()
+                
+            else:
+                print("Expected ')'")
+
+
+  
         
 
+
+
+
+
+    def return_state(self):
+        self.expresion()
+        return
 
 #main function
 def main():
