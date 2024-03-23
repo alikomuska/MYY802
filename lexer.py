@@ -243,7 +243,8 @@ class Parser:
     def advance_tokens(self):
         self.current_token= self.next_token
         self.next_token = self.lexer.get_next_token()
-    
+        return
+
     def return_token(self):
         self.lex.return_token()
         return
@@ -302,7 +303,7 @@ class Parser:
             exit()
         self.advance_token()
             
-        #declaraions
+        #delcarations (assignments)
         self.assignments_state()
 
         #functions
@@ -329,8 +330,13 @@ class Parser:
         if(self.current_token.value != "main"):
             print("Error ...")
             exit()
-        #delcarations
+
+        #delcarations (assignments)
+        self.assignments_state()
+
         #functions
+        self.function_declaration_state()
+
         #globals
         #code_block
 
@@ -364,10 +370,6 @@ class Parser:
         return 
 
 
-    def in_function_declarations():
-        return
-
-    
 
 ##############################################################
 
@@ -422,68 +424,17 @@ class Parser:
         
         return #if you get a token that you wont use, then you reaturn it
 
-
-    def statement_state():
-        return        
-        #simple_statement
-        #strctured_statment
-
-
-
-    def dicede_flow_state():
-
-        
-
-
-
-        return
-
-
-
-
-
-
-
-    def condition_state():
-
-        return
-
-
     def print_state(self):
-
         print_token = self.get_next_token()     
         if(print_token.value != '('):
             print("Error")
             return #kill
-
         #expression
-
         print_token = self.get_next_token()
         if(print_token.value != ')'):
             print("Error")
             return #kill
 
-    def assignment_state(self):
-
-        assignment_token = self.get_next_token()
-        if(assignment_token.value != '='):
-            print("Error...")
-            return
-
-
-    def simple_statement(self):
-        simple_token = self.get_next_token()
-        #assignment check
-        if(simple_token.type == 'ID'):
-            self.assignment_state()
-
-        #print check
-        if(simple_token.value == "print"):
-            self.print_state()
-
-        #return check
-        #if(simple_token.value == "return"):
-        
 
     def input_state(self):
         input_token = self.get_next_token()
