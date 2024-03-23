@@ -268,6 +268,11 @@ class Parser:
         self.id_list()
 
          # Grammar check successful (no data structure returned)
+
+        if(self.next_token.value == "global"):
+            self.advance_token()
+            self.global_state()
+
         return 
 
     #startRule
@@ -331,6 +336,7 @@ class Parser:
         self.function_declaration_state()
         
         #globals
+        self.global_state()
 
         #code_block
         self.code_block_state(0) #is_main = 0
@@ -361,6 +367,7 @@ class Parser:
         self.function_declaration_state()
 
         #globals
+        self.global_state()
 
         #code_block
         self.code_block_state(1) #is_main = 1
@@ -392,7 +399,6 @@ class Parser:
     def code_block_state(self, is_main):
         self.advance_token()
 
-        
         if(self.current_token.value == "if"):
             #if_block
             return
@@ -414,7 +420,8 @@ class Parser:
         #if is_main == 0 run until #}
         #if is_main == 1 run until end of file
 
-##############################################################
+
+####while, if, print, return , input####
 
     def while_state(self):
 
@@ -432,40 +439,40 @@ class Parser:
 
 
     def if_state(self):
-        #since you are inside the if_block then you know that the previous token was "if" 
-
         #check for condition
         self.condition()
 
         #check for :
-        if_token = self.lex.get_next_token()
-        if(if_token.value != ':'):
+        self.advance_token()
+        if(self.current_token.value != ':'):
             print("Error") 
-            return #kill program
+            exit()
+
+        has_brackets = 0
+        if(self.next_token.value == "#{"):
+            self.advance_token()
+            has_brackets = 1
 
         #check for: if, while, ekxorisi, return,  print, input
-        self.decide_flow() 
+        self.code_block()
+
+        ####################################
 
         #check for elif
-        if_token = self.lex.get_next_token()
-        if(if_token.value != "elif"):
-            return if_token 
-
-        next_token = self.if_block()
-
-        #check for else
-        if(next_token.value != 'else'):
-            return next_token
-
-        #check for ':'
-        if_token = self.lex.get_next_token()
-        if(if_token.value != ':'):
-            print("Error") #kill program
+        if(self.next_token.value == "elif"):
+            #self.elif_state()
             return 
 
-        self.decide_flow()
-        
-        return #if you get a token that you wont use, then you reaturn it
+        #check for else
+        if(self.next_token.value == 'else'):
+            #self.self_state
+            return
+
+        if(has_brackets == 1):
+            #to do
+            continue
+        return
+
 
     def print_state(self):
         print_token = self.get_next_token()     
@@ -490,6 +497,9 @@ class Parser:
         if(get_next_token.value != '('):
             print("Error... ")
         
+    def condition(self):
+        self.advance_token()
+        return
 
 
 #main function
