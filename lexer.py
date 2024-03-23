@@ -258,14 +258,14 @@ class Parser:
 
 
 
-    def parse_global_statement(self):
+    def global_state(self):
            
         # Check for the 'global' keyword
         self.advance()
         if self.current_token.type != 'keyword' or self.current_token.value != 'global':
                 print("Expected 'global' keyword for global statement")
 
-        self.parse_id_list()
+        self.id_list()
 
          # Grammar check successful (no data structure returned)
         return 
@@ -316,7 +316,7 @@ class Parser:
             print("Error ...")
             exit()
 
-        self.parse_id_list()
+        self.id_list()
 
         self.advance_token()
         if(self.current_token.value != "#{"):
@@ -368,7 +368,7 @@ class Parser:
         return 
     
     #to be done
-    def parse_id_list(self):
+    def id_list(self):
         self.advance_token()
         # Check if the current token is an ID
         if( self.current_token.type == 'ID'):
@@ -386,13 +386,7 @@ class Parser:
                 self.advance_tokens()    
         return
     
-    def parse_declaration_line(self):
-        if self.current_token.type == '#int':
-            self.advance_tokens()  # Consume '#int' token
-            self.id_list = self.parse_id_list()  # Parse id_list
-        else:
-            raise SyntaxError("Expected '#int' at the beginning of declaration_line")
-        return 
+     
 
 
     def code_block_state(self, is_main):
