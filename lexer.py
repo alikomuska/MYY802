@@ -237,20 +237,27 @@ class Parser:
 
     def __init__(self,sourceCode):
         self.lex = Lexer(sourceCode)
-        self.current_token = None
-        self.next_token = None
-        self.advance_token() 
+        self.current_token = Token("NULL", "", 0)
+        self.next_token = Token("NULL" , "", 0)
+        self.current_token_init()
+
+    def current_token_init(self):
+        while(self.current_token.type == "NULL"):
+            self.advance_token()
+        return
 
     def advance_token(self):
-        if(self.current_token is None or self.current_token.value == "##"):
+        if(self.next_token.value == "##"):
             self.current_token= self.next_token
             self.next_token = self.lex.get_next_token()
-            self.advance_token()
-        else:
-            self.current_token= self.next_token
-            self.next_token = self.lex.get_next_token()
-            print("Current token: ", self.current_token.value)
-            print("Next token: ", self.next_token.value)
+            while(elf.next_token != "##"):   
+                self.current_token= self.next_token
+                self.next_token = self.lex.get_next_token()
+        
+        self.current_token= self.next_token
+        self.next_token = self.lex.get_next_token()
+        print("Current token: ", self.current_token.value)
+        print("Next token: ", self.next_token.value)
         
 
     def return_token(self):
@@ -595,9 +602,18 @@ def main():
     inputFilePath = sys.argv[-1]
     sourceCode = open(inputFilePath).read()
     lex = Lexer(sourceCode)
-    print(lex.get_next_token().value)
-    print(lex.get_next_token().value)
-    print(lex.get_next_token().value)
     
+    
+    #for token in lex.tokens:
+    #    print("Type:", token.type)
+    #    print("Value:", token.value)
+    #    print("")
+    
+
+    par = Parser(sourceCode)
+
+    while(par.current_token.type != "EOF"):    
+        par.advance_token()
+
 if __name__ == "__main__":
     main()
