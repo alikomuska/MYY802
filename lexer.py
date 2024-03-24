@@ -71,7 +71,7 @@ class Lexer:
         self.token_index=-1
         self.make_tokens()
         
-    def  advance(self):
+    def advance(self):
         self.pos+=1
         if self.pos < self.sourceCodeSize: # < or <=
             self.current_char=self.sourceCode[self.pos] 
@@ -222,7 +222,7 @@ class Lexer:
     def get_next_token(self):
         self.token_index+=1
         if self.token_index>=len(self.tokens):
-            return None
+            return Token("EOF", "", self.line)
         return self.tokens[self.token_index]
 
     def return_token(self):
@@ -237,25 +237,25 @@ class Parser:
 
     def __init__(self,sourceCode):
         self.lex = Lexer(sourceCode)
-        self.current_token =self.lex.get_next_token()
-        self.next_token = self.lex.get_next_token()
-        if self.current_token.value=="##":
-            self.advance_token()
-        
-    
+        self.current_token = None
+        self.next_token = None
+        self.advance_token() 
+
     def advance_token(self):
-        self.current_token= self.next_token
-        self.next_token = self.lexer.get_next_token()
+        if(self.current_token is None or self.current_token.value == "##"):
+            self.current_token= self.next_token
+            self.next_token = self.lex.get_next_token()
+            self.advance_token()
+        else:
+            self.current_token= self.next_token
+            self.next_token = self.lex.get_next_token()
+            print("Current token: ", self.current_token.value)
+            print("Next token: ", self.next_token.value)
         
-            
-        
-       
 
     def return_token(self):
         self.lex.return_token()
         return
-
-
 
 
     def global_state(self):
@@ -295,11 +295,11 @@ class Parser:
         #no need to check #int
         self.advance_token()
         if(self.current_token.value != "ID"):
-            print("Error at line ", self.current.line ,". Expected variable name.")
+            print("Error at line ", self.current_token.line ,". Expected variable name.")
             exit()
         self.get_next_token()
         if(self.current_token.value != '='):
-            print("Error at line ", self.current.line ,". Expected '='.")
+            print("Error at line ", self.current_token.line ,". Expected '='.")
             exit()
         self.expression()
 
@@ -518,10 +518,17 @@ class Parser:
             else:
                 print("Expected ')'")
 
-        
+    ##########################################    
     def condition(self):
-        self.advance_token()
+        while(self.next_token.value != ":"):
+            self.advance_token()
         return
+
+    def expression(self):
+        while(self.current_token.value != ":"):
+            self.advance_token()
+        return
+    ##########################################
 
     #to be tested
     def input_state(self):
@@ -587,8 +594,10 @@ class Parser:
 def main():
     inputFilePath = sys.argv[-1]
     sourceCode = open(inputFilePath).read()
-    par = Parser(sourceCode)
-    par.syntax_analyzer()
+    lex = Lexer(sourceCode)
+    print(lex.get_next_token().value)
+    print(lex.get_next_token().value)
+    print(lex.get_next_token().value)
     
 if __name__ == "__main__":
     main()
