@@ -36,26 +36,6 @@ class Token:
     
 
 
-###################################
-###           ERRORS            ###
-###################################
-
-class Error:
-    def  __init__(self,error_name,details):
-        self.error_name=error_name
-        self.details=details
-
-    def as_string(self):
-        result=f'{self.error_name}:{self.details}'
-        return result      
-
-class Illegalchar(Error):
-    def __init__(self,details):
-        super().__init__('Illegal char',details)
-
-
-
-
 #####################################
 ###            LEXER              ###
 #####################################
@@ -122,8 +102,8 @@ class Lexer:
                 continue
             else:
                 char=self.current_char
-                return[] ,Illegalchar("'"+char+"'")
-
+                print("Error lol xd")
+                exit()
             self.tokens.append(current_token)
 
         return self.tokens, None       
@@ -615,16 +595,16 @@ def main():
     lex = Lexer(sourceCode)
     
     
-    #for token in lex.tokens:
-    #    print("Type:", token.type)
-    #    print("Value:", token.value)
-    #    print("")
+    for token in lex.tokens:
+        print("Type:", token.type)
+        print("Value:", token.value)
+        print("")
     
 
-    par = Parser(sourceCode)
+    #par = Parser(sourceCode)
 
-    while(par.current_token.type != "EOF"):    
-        par.advance_token()
+    #while(par.current_token.type != "EOF"):    
+    #    par.advance_token()
 
 if __name__ == "__main__":
     main()
