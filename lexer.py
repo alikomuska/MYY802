@@ -195,7 +195,7 @@ class Lexer:
                 self.advance()
                 return Token('GROUP_SYTMBOL',result,self.line)
             if result in GROUPING_SYMBOLS  :
-                self.advance()
+                
                 return Token('GROUP_SYMBOL', result, self.line)
 
             
