@@ -585,10 +585,10 @@ class Parser:
 
 #main function
 def main():
-    
-        print("mphkame ")
-    
-    
+    inputFilePath = sys.argv[-1]
+    sourceCode = open(inputFilePath).read()
+    par = Parser(sourceCode)
+    par.syntax_analyzer()
     
 if __name__ == "__main__":
     main()
