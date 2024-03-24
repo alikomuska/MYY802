@@ -600,16 +600,16 @@ def main():
     lex = Lexer(sourceCode)
     
     
-    for token in lex.tokens:
-        print("Type:", token.type)
-        print("Value:", token.value)
-        print("")
+    #for token in lex.tokens:
+    #    print("Type:", token.type)
+    #    print("Value:", token.value)
+    #    print("")
     
 
-    #par = Parser(sourceCode)
+    par = Parser(sourceCode)
 
-    #while(par.current_token.type != "EOF"):    
-    #    par.advance_token()
+    while(par.current_token.type != "EOF"):    
+        par.advance_token()
 
 if __name__ == "__main__":
     main()
