@@ -114,6 +114,8 @@ class Lexer:
                 current_token = self.make_group_symbols()
             elif self.current_char in GROUPING_SYMBOLS:
                 current_token=self.make_group_symbols()
+            elif self.current_char in SEPARATORS:
+                current_token=self.make_seperators()
             elif self.current_char == '\n':
                 self.line+=1
                 self.advance()
@@ -156,6 +158,14 @@ class Lexer:
         # Create a token for the integer value
         return Token('INT', int(num_str), self.line)
 
+    def make_seperators(self):
+        result=''
+        result+=self.current_char
+        self.advance()
+        return Token('SEPERATOR', result, self.line)
+
+
+
 
     def make_operators(self):
         result =''
@@ -172,6 +182,7 @@ class Lexer:
            
             if result == "/" or result == "!":
                 result+=self.current_char
+                self.advance()
                
         
 
