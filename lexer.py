@@ -129,7 +129,7 @@ class Lexer:
 
     def make_word(self):
         result = ''
-        while self.current_char is not None and self.current_char in LETTERS:
+        while self.current_char is not None and (self.current_char in LETTERS  or self.current_char in DIGITS):
                 result += self.current_char
                 self.advance()
         if result in KEYWORDS:
