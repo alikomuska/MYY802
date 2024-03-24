@@ -122,7 +122,7 @@ class Lexer:
                 continue
             else:
                 char=self.current_char
-                return[] ,Illegalchar("'"+char+"'")
+                print("Error in lexer:" +char)
 
             self.tokens.append(current_token)
 
@@ -153,7 +153,8 @@ class Lexer:
             return Token('ILLEGAL', num_str, self.line)
         # Check if the next character is an illegal character
         if self.current_char is not None and self.current_char in LETTERS:
-            return [], Illegalchar("'"+self.current_char+"'")
+            print("Error")
+            exit()
 
         # Create a token for the integer value
         return Token('INT', int(num_str), self.line)
@@ -171,7 +172,7 @@ class Lexer:
         result =''
         while self.current_char is not None and  self.current_char in OPERATORS :
             result += self.current_char
-            if result == '-' and self.peek() in DIGITS:
+            if result == '-' and self.peek() is not None and self.peek() in DIGITS:
                 self.advance() 
                 num_token = self.make_number()  # Treat it as a negative number
                 num_token.value = -int(num_token.value)  # Negate the value
@@ -199,6 +200,7 @@ class Lexer:
     
     def make_group_symbols(self):
         result = ''
+        
 
         while self.current_char is not None:
             result += self.current_char
@@ -210,8 +212,10 @@ class Lexer:
              return Token('COMMENT_SYMBOL', result, self.line)
             if result =='#' and (self.current_char=='{' or self.current_char=='}'):
                 result+=self.current_char
+                self.advance()
                 return Token('GROUP_SYTMBOL',result,self.line)
             if result in GROUPING_SYMBOLS  :
+                self.advance()
                 return Token('GROUP_SYMBOL', result, self.line)
 
             
@@ -221,12 +225,13 @@ class Lexer:
                     result += self.current_char
                     self.advance()
             if result in KEYWORDS:
+                self.advance()
                 return Token('keyword', result, self.line)
             else:
                 print(" SYNTAX ERRO")
                 exit()
                 
-
+        
         return Token('GROUP_SYMBOL', result, self.line)
 
     
