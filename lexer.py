@@ -133,7 +133,7 @@ class Lexer:
             return Token('ILLEGAL', num_str, self.line)
         # Check if the next character is an illegal character
         if self.current_char is not None and self.current_char in LETTERS:
-            return [], Illegalchar("'"+self.current_char+"'")
+            return []
 
         # Create a token for the integer value
         return Token('INT', int(num_str), self.line)
@@ -241,7 +241,7 @@ class Parser:
         if(self.next_token.value == "##"):
             self.current_token= self.next_token
             self.next_token = self.lex.get_next_token()
-            while(elf.next_token != "##"):   
+            while(self.next_token != "##"):   
                 self.current_token= self.next_token
                 self.next_token = self.lex.get_next_token()
         
