@@ -240,10 +240,10 @@ class Parser:
         self.current_token =self.lex.get_next_token()
         self.next_token = self.lex.get_next_token()
         if self.current_token.value=="##":
-            self.advance_tokens()
+            self.advance_token()
         
     
-    def advance_tokens(self):
+    def advance_token(self):
         self.current_token= self.next_token
         self.next_token = self.lexer.get_next_token()
         
@@ -381,16 +381,16 @@ class Parser:
         if( self.current_token.type == 'ID'):
             # Add the first identifier to the list
             
-            self.advance_tokens()
+            self.advance_token()
             #to be done /checked 
             # Check for additional identifiers separated by commas
             while self.current_token.value == ',':
-                self.advance_tokens()  # Consume the comma
+                self.advance_token()  # Consume the comma
                 if self.current_token.type != 'ID':
                     # If there's a comma but no following identifier, raise an error
                     print("Expected identifier after ','")
                     exit()
-                self.advance_tokens()    
+                self.advance_token()    
         return
     
      
@@ -506,14 +506,14 @@ class Parser:
     def print_state(self):
         has_brackets=0
         if self.next_token.value == '(':
-            self.advance_tokens()
+            self.advance_token()
             self.has_brackets=1
 
         self.expresion()
 
         if has_brackets==1:    
             if self.next_token.value==')':
-                self.advance_tokens()
+                self.advance_token()
                 
             else:
                 print("Expected ')'")
