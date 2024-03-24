@@ -307,16 +307,24 @@ class Parser:
 
     #to be tested
     def assignments_state(self):
-        #no need to check #int
-        if(self.current_token.value != "ID"):
+        print("assignments state")
+        print("Current token ", self.current_token.value , " Line ", self.current_token.line)
+
+        if(self.current_token.value != "#int"):
+            print("Error")
+            exit()
+
+        self.advance_token()
+
+        if(self.current_token.type != "ID"):
             print("Error at line ", self.current_token.line ,". Expected variable name.")
             exit()
         self.advance_token()
-        if(self.current_token.value != '='):
-            print("Error at line ", self.current_token.line ,". Expected '='.")
-            exit()
 
-        self.expression()
+
+        if(self.current_token.value == '='):
+            self.expression()
+
 
         if(self.next_token.value == "#int"):
             self.advance_token()
@@ -540,10 +548,70 @@ class Parser:
         return
 
     def expression(self):
-        while(self.current_token.value != ":"):
+        self.advance_token()
+        has_parenthesis = 0
+
+        if(self.current_token.value == "("):
+            has_parenthesis = 1
+            self.expression()
+        
+        self.term
+        self.advance_token()
+        
+
+
+        if(has_parenthesis == 1):
+            if(self.current_token.type == "OPERATOR"):
+                self.term() 
+         
+        #####
+        #####
+        #####
+
+
+        if(has_parenthesis == 1):
+            if(self.next_token.value != ')'):
+                print("Error expexted ')'")
+                exit()
+        
+
+        ##########################
+
+        #self.advance_token()
+        
+        if(self.next_token.type == "OPERATOR"):
             self.advance_token()
+            self.expression()
+
+
         return
+
+    def term(self):
+        #check if term is int, ID, function call
+        self.advance_token()
+
+        if(self.current_token.type == "ID"):
+            if(self.next_token.value == '('):
+                self.advance_token() 
+                self.function_call()
+                return
+            self.advance_token()
+        elif(self.current_token.type == "INT"):
+            return
+        else:
+            print("Error expected term")
+            exit()
+
+        return
+
     ##########################################
+
+    
+    def function_call(self):
+        return
+
+
+
 
     #to be tested
     def input_state(self):
