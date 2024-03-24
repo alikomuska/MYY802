@@ -266,15 +266,9 @@ class Parser:
             self.next_token = self.lex.get_next_token()
 
         print("Current token: ", self.current_token.value)
-        print("Next token: ", self.next_token.value)
         print("")
         return 
         
-
-    def return_token(self):
-        self.lex.return_token()
-        return
-
 
     def global_state(self):
            
@@ -296,6 +290,7 @@ class Parser:
     #startRule
     def syntax_analyzer(self):
         self.declarations_state()
+        print("Declarations ended")
         self.advance_token()
         if(self.current_token.value != "#def"):
             print("Error at line", self.current_token.line, ". Main function missing")
@@ -304,6 +299,8 @@ class Parser:
 
     #to be tested
     def declarations_state(self):
+        print("declarations_state")
+        print("Current token ", self.current_token.value , " Line ", self.current_token.line)
         self.assignments_state()
         self.functions_declaration_state()
         return
@@ -311,14 +308,14 @@ class Parser:
     #to be tested
     def assignments_state(self):
         #no need to check #int
-        self.advance_token()
         if(self.current_token.value != "ID"):
             print("Error at line ", self.current_token.line ,". Expected variable name.")
             exit()
-        self.get_next_token()
+        self.advance_token()
         if(self.current_token.value != '='):
             print("Error at line ", self.current_token.line ,". Expected '='.")
             exit()
+
         self.expression()
 
         if(self.next_token.value == "#int"):
@@ -617,12 +614,7 @@ def main():
     
 
     par = Parser(sourceCode)
-    print("Current token: ", par.current_token.value)
-    print("Next token: ", par.next_token.value)
-    print("")
-
-    while(par.current_token.type != "EOF"):    
-        par.advance_token()
+    par.syntax_analyzer()
 
 if __name__ == "__main__":
     main()
