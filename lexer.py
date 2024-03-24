@@ -134,6 +134,7 @@ class Lexer:
         # Check if the next character is an illegal character
         if self.current_char is not None and self.current_char in LETTERS:
             return []
+            exit()
 
         # Create a token for the integer value
         return Token('INT', int(num_str), self.line)
@@ -190,8 +191,11 @@ class Lexer:
              return Token('COMMENT_SYMBOL', result, self.line)
             if result =='#' and (self.current_char=='{' or self.current_char=='}'):
                 result+=self.current_char
+
+                self.advance()
                 return Token('GROUP_SYTMBOL',result,self.line)
             if result in GROUPING_SYMBOLS  :
+                self.advance()
                 return Token('GROUP_SYMBOL', result, self.line)
 
             
@@ -201,6 +205,7 @@ class Lexer:
                     result += self.current_char
                     self.advance()
             if result in KEYWORDS:
+                self.advance()
                 return Token('keyword', result, self.line)
             else:
                 print(" SYNTAX ERRO")
