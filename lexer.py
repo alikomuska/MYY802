@@ -421,22 +421,23 @@ class Parser:
             print("Error at line", self.current.line, ". Code block not ended properly")
             exit()
         
-        #### check from here and after
         #if is_main == 0 run until #}
-        if(is_main == 0 and self.next_token != "#}"):
-            self.code_block_state()
-        else:
+        if(is_main == 0):
+            if(self.next_token.value != "#}"):
+                self.advance_token()
+                self.code_block_state()
             return
-            
+
         #if is_main == 1 run until end of file
-        if(is_main == 1 and self.next_token != ""):
-            print("Compilation done")
-            return
-        else:
-            return
-
-        return 
-
+        if(is_main == 1):
+            if(self.next_token.value != ""):
+                self.advance_token()
+                self.code_block_state()
+                return
+            else:
+                print("Compilation done")
+                return
+        return
 
 ### while, if, print, return , input ###
 
@@ -484,8 +485,6 @@ class Parser:
         #check for: if, while, ekxorisi, return,  print, input
         self.code_block()
 
-        ####################################
-
         #check for elif
         if(self.next_token.value == "elif"):
             self.elif_state()
@@ -497,8 +496,10 @@ class Parser:
             return
 
         if(has_brackets == 1):
-            #to do
-            continue
+            if(self.next_token.value != "#}"):
+                print("Error ...")
+                exit()
+            self.advance_token()
         return
 
 
@@ -522,15 +523,64 @@ class Parser:
         self.advance_token()
         return
 
+    #to be tested
+    def input_state(self):
+        if(self.current_token.value != "="):
+            print("Error at line", self.current_token.line, ". Missing a '='")
+            exit()
+        self.advance_token() #self.current_token is '=' and it has been checked at the code_block
 
+        self.advance_token() 
+        if(self.current_token.value != '('):
+            print("Error at line", self.current_token.line, ". Missing a '('")
+            exit()
+
+        self.advance_token()
+        if(self.current_token.value != 'input'):
+            print("Error at line", self.current_token.line, ". Missing a '('")
+            exit()
+
+        self.advance_token()
+        if(self.current_token.value != '('):
+            print("Error at line", self.current_token.line, ". Missing a '('")
+            exit()
+
+        self.advance_token()
+        if(self.current_token.value != ')'):
+            print("Error at line", self.current_token.line, ". Missing a ')'")
+            exit()
+
+        self.advance_token()
+        if(self.current_token.value != ')'):
+            print("Error at line", self.current_token.line, ". Missing a ')'")
+            exit()
+
+    #to be tested 
     def return_state(self):
         self.expresion()
         return
 
+    #to be tested
     def elif_state(self):
+        self.exprextion()
+        self.advance_token()
+        if(self.current_token.value != ":"):
+            print("Error ...")
+            exit
+        self.code_block_state()
+        
+        if(self.next_token.value == "elif"):
+            self.elif_state()
         return
 
+    #to be tested
     def else_state(self):
+        self.advannce_token()
+        if(self.current_token.value != ":"):
+            print("Error ...")
+            exit()
+
+        self.code_block_state()
         return
 
 #main function
