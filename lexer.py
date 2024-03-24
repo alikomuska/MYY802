@@ -235,25 +235,40 @@ class Parser:
         self.lex = Lexer(sourceCode)
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
-        self.current_token_init()
+        self.token_init()
 
-    def current_token_init(self):
-        while(self.current_token.type == "NULL"):
-            self.advance_token()
+    def token_init(self):
+        #initialyze current token
+        self.current_token = self.lex.get_next_token()
+        if(self.current_token.value == "##"):
+            self.current_token = self.lex.get_next_token()
+            while(self.current_token.value != "##"):
+                self.current_token = self.lex.get_next_token() 
+            self.current_token = self.lex.get_next_token()
+        
+        #initialyze current token
+        self.next_token = self.lex.get_next_token()
+        if(self.next_token.value == "##"):
+            self.next_token = self.lex.get_next_token()
+            while(self.next_token.value != "##"):
+                self.next_token = self.lex.get_next_token() 
+            self.next_token = self.lex.get_next_token()
         return
 
+
     def advance_token(self):
-        if(self.next_token.value == "##"):
-            self.current_token= self.next_token
-            self.next_token = self.lex.get_next_token()
-            while(self.next_token != "##"):   
-                self.current_token= self.next_token
-                self.next_token = self.lex.get_next_token()
-        
         self.current_token= self.next_token
         self.next_token = self.lex.get_next_token()
+        if(self.next_token.value == "##"):
+            self.next_token = self.lex.get_next_token()
+            while(self.next_token.value != "##"):
+                self.next_token = self.lex.get_next_token() 
+            self.next_token = self.lex.get_next_token()
+
         print("Current token: ", self.current_token.value)
         print("Next token: ", self.next_token.value)
+        print("")
+        return 
         
 
     def return_token(self):
@@ -565,8 +580,9 @@ class Parser:
             print("Error at line", self.current_token.line, ". Missing a ')'")
             exit()
 
-    #to be tested 
+    #to be done
     def return_state(self):
+        # make it so you can do return fib(3)
         self.expresion()
         return
 
@@ -599,14 +615,11 @@ def main():
     sourceCode = open(inputFilePath).read()
     lex = Lexer(sourceCode)
     
-    
-    #for token in lex.tokens:
-    #    print("Type:", token.type)
-    #    print("Value:", token.value)
-    #    print("")
-    
 
     par = Parser(sourceCode)
+    print("Current token: ", par.current_token.value)
+    print("Next token: ", par.next_token.value)
+    print("")
 
     while(par.current_token.type != "EOF"):    
         par.advance_token()
