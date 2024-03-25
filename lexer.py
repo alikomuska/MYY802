@@ -501,7 +501,7 @@ class Parser:
         self.condition()
 
         self.advance_token()
-        if(self.current.token.value != ":"):
+        if(self.current_token.value != ":"):
             print("Error ...")
             exit()
 
@@ -650,13 +650,14 @@ class Parser:
             exit()
         self.advance_token()
         
-        print("Current token:", self.current_token.value, "\n")
         self.expression()
         print("Current token:", self.next_token.value, "Line" ,self.current_token.line , "\n")
 
-        if(self.current_token.value != ")"):
+        if(self.next_token.value != ")"):
             print("Error at line", self.current_token.line, ". Missing a ')'.")
             exit()
+
+        self.advance_token()
 
         return
 
