@@ -346,7 +346,7 @@ class Parser:
 
         self.advance_token()
         if(self.current_token.value != "#{"):
-            print("Error...")
+            print("Error 1", self.current_token.value)
             exit()
         self.advance_token()
             
@@ -399,8 +399,13 @@ class Parser:
     #to be done
     def id_list(self):
         print("id_list")
-        self.advance_token()
+        print("Current token :", self.current_token.value, "\n")
+
+        if(self.next_token.value == ")"):
+            return
+
         # Check if the current token is an ID
+        self.advance_token()
         if( self.current_token.type == 'ID'):
             # Add the first identifier to the list
             
