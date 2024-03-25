@@ -279,6 +279,7 @@ class Parser:
     def syntax_analyzer(self):
         self.declarations_state()
         print("Declarations ended")
+        print("Current token ", self.current_token.value , " Line ", self.current_token.line, "\n")
         self.advance_token()
         if(self.current_token.value != "#def"):
             print("Error at line", self.current_token.line, ". Main function missing")
@@ -389,28 +390,34 @@ class Parser:
     #to be done
     def main_function_state(self):
         print("main_function_state")
-        #no need to check #def
+        print("Current token ", self.current_token.value , " Line ", self.current_token.line)
+        if(self.next_token.value != "main"):
+            print("Error no main function")
+
         self.advance_token()
-        if(self.current_token.value != "main"):
-            print("Error ...")
-            exit()
 
-        ##############################################################
-        #### WARNING YOU HAVE TO PUT IF BEFORE EVERY STATE ############
-########################################################################
 
-        #delcarations (assignments)
-        self.assignments_state()
+    	#delcarations (assignments)
+        if(self.next_token.value == "#int"):
+            self.advance_token()
+            self.assignments_state()
 
         #functions
-        self.function_declaration_state()
+        if(self.next_token.value == "def"):
+            self.advance_token()
+            self.functions_declaration_state()
+        
+        #globals 
+        if(self.next_token.value == "global"):
+            self.advance_token()
+            self.global_state()
 
-        #globals
-        self.global_state()
 
         #code_block
-        self.code_block_state(1) #is_main = 1
-
+        self.code_block_state(0, 1) #is_main = 0 multipleLines =  multipleLines = 1
+        print("################")
+        print("COMPILATION DONE")
+        print("################")
         return 
     
     #to be done
@@ -494,6 +501,7 @@ class Parser:
     #to be tested
     def while_state(self):
         print("while_state")
+        print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
         self.condition()
 
         self.advance_token()
@@ -559,20 +567,24 @@ class Parser:
 
     def print_state(self):
         print("print_state")
-        has_brackets=0
-        if self.next_token.value == '(':
-            self.advance_token()
-            self.has_brackets=1
+        print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
+        if self.next_token.value != "(":
+            print("Error missing a '('")
+            exit()
 
-        self.expresion()
+        self.advance_token()
 
-        if has_brackets==1:    
-            if self.next_token.value==')':
-                self.advance_token()
-                
-            else:
-                print("Expected ')'")
+        print("ok")
+        self.expression()
+        print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
 
+        if (self.next_token.value != ")"):
+             print("Missing a ')' ")
+             exit()
+
+        self.advance_token()
+
+        return
 
     #DONE
     def condition(self):
@@ -583,8 +595,14 @@ class Parser:
         print("Condition Finish token", self.current_token.value, "Line: ", self.current_token.line,"\n")
         return
 
-
     def expression(self):
+        if(self.next_token.value == "+" or self.next_token.value == "-"):
+            self.advance_token()
+        self.un_expression()
+        return
+
+
+    def un_expression(self):
         print("Expression")
         print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
         has_parenthesis = 0
@@ -660,9 +678,10 @@ class Parser:
 
 
 
-    #to be tested
+    #DONE
     def input_state(self):
         print("input_state")
+        print("Current token:", self.current_token.value, "\n")
         if(self.current_token.value != "="):
             print("Error at line", self.current_token.line, ". Missing a '='")
             exit()
@@ -692,6 +711,8 @@ class Parser:
         if(self.current_token.value != ')'):
             print("Error at line", self.current_token.line, ". Missing a ')'")
             exit()
+
+        return
 
     #to be done
     def return_state(self):
