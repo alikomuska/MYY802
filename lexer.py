@@ -269,16 +269,13 @@ class Parser:
 
     def global_state(self):
         print("Global state")   
+        print("Current token ", self.current_token.value , " Line ", self.current_token.line, "\n")
         # Check for the 'global' keyword
 
         self.id_list()
 
-        print("id_list return with token:", self.current_token.value)
-
         if(self.next_token.value == "global"):
             self.global_state()
-
-        print("global return with token:", self.current_token.value)
 
         return 
 
@@ -304,7 +301,7 @@ class Parser:
     #to be tested
     def assignments_state(self):
         print("assignments state")
-        print("Current token ", self.current_token.value , " Line ", self.current_token.line)
+        print("Current token ", self.current_token.value , " Line ", self.current_token.line, "\n")
 
     
         if(self.current_token.value != "#int"):
@@ -380,9 +377,7 @@ class Parser:
 
 
         #code_block
-        print("code block entered")
-        print("Current token ", self.current_token.value , " Line ", self.current_token.line)
-        self.code_block_state(0) #is_main = 0
+        self.code_block_state(0, 1) #is_main = 0 multipleLines =  multipleLines = 1
 
         self.advance_token()
         if(self.current_token.value != "#}"):
@@ -443,7 +438,7 @@ class Parser:
      
 
 
-    def code_block_state(self, is_main):
+    def code_block_state(self, is_main, multipleLines):
         print("code_block_state")
         print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
 
@@ -451,47 +446,52 @@ class Parser:
         if(self.next_token.value == "if"):
             self.advance_token()
             self.if_state()
-            return
         elif(self.next_token.value == "while"):
             self.advance_token()
             self.while_state()
-            return
         elif(self.next_token.value == "return"):
             self.advance_token()
             self.return_state()
-            return
         elif(self.next_token.value == "print"):
             self.advance_token()
             self.print_state()
-            return
         elif(self.next_token.type == "ID"):
             self.advance_token()
-            if(self.next_token.value == "int"):
+            if(self.next_token.value != "="):
+                print("Error expected '='")
+                exit() 
+            self.advance_token()
+            if(self.next_token.value == "int"): 
                 self.input_state()
-            elif(self.next_token.value == "="):
-                self.advance_token()
+            else:
                 self.expression()
         else:
             return 
 
 
-        #if is_main == 0 run until #}
-        if(is_main == 0):
-            if(self.next_token.value != "#}"):
-                self.advance_token()
-                self.code_block_state(0)
+        if(multipleLines == 0):
             return
-
-        #if is_main == 1 run until end of file
-        if(is_main == 1):
-            if(self.next_token.value != ""):
-                self.advance_token()
-                self.code_block_state(0)
-                return
-            else:
-                print("Compilation done")
-                return
+        
+        self.code_block_state(0, 1)
         return
+    #######################################################################
+    #    #if is_main == 0 run until #}
+    #    if(is_main == 0):
+    #        if(self.next_token.value != "#}"):
+    #            self.advance_token()
+    #            self.code_block_state(0)
+    #        return
+
+    #    #if is_main == 1 run until end of file
+    #    if(is_main == 1):
+    #        if(self.next_token.value != ""):
+    #            self.advance_token()
+    #            self.code_block_state(0)
+    #            return
+    #        else:
+    #            print("Compilation done")
+    #            return
+    #    return
 
 ### while, if, print, return , input ###
 
@@ -510,7 +510,7 @@ class Parser:
             self.advance_token()
             has_bracket = 1
 
-        self.code_block()
+        self.code_block_state(0, has_bracket)
 
         if(has_bracket == 1 and self.next_token.value != "#}"):
             print("Error at line ". self.next_token.line, ". Missing '#}'")
@@ -522,7 +522,10 @@ class Parser:
 
 
     def if_state(self):
-        print("if_state\n")
+        print("if_state")
+        print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
+
+
         #check for condition
         self.condition()
 
@@ -538,12 +541,12 @@ class Parser:
             has_brackets = 1
 
         #check for: if, while, ekxorisi, return,  print, input
-        self.code_block_state(0)
+        self.code_block_state(0, has_brackets)
+        print("after code block token", self.current_token.value, "Line: ", self.current_token.line,"\n")
 
         #check for elif
         if(self.next_token.value == "elif"):
             self.elif_state()
-            return 
 
         #check for else
         if(self.next_token.value == 'else'):
@@ -575,17 +578,19 @@ class Parser:
                 print("Expected ')'")
 
 
+    #DONE
     def condition(self):
         print("Condition")
+        print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
         while(self.next_token.value != ":"):
             self.advance_token()
+        print("Condition Finish token", self.current_token.value, "Line: ", self.current_token.line,"\n")
         return
 
 
     def expression(self):
         print("Expression")
-        print("Current token:", self.current_token.value)
-        print("")
+        print("Current token", self.current_token.value, "Line: ", self.current_token.line,"\n")
         has_parenthesis = 0
 
         if(self.next_token.value == "("):
@@ -617,15 +622,17 @@ class Parser:
     def term(self):
         #check if term is int, ID, function call
         print("term")
-        print("Current token:", self.current_token.value)
-        print("")
+        print("Current token:", self.current_token.value, "\n")
 
         if(self.next_token.type == "ID"):
             self.advance_token()
             if(self.next_token.value == "("):
                 self.function_call()
+                print("Current token:", self.current_token.value, "\n")
                 return
         elif(self.next_token.type == "INT"):
+            self.advance_token()
+            print("Finish Current token:", self.current_token.value, "\n")
             return
         else:
             print("Error expected term")
@@ -637,14 +644,16 @@ class Parser:
     
     def function_call(self):
         print("function_call")
-        self.advance_token()
-        if(self.current_token.value != "("):
+        print("Current token:", self.current_token.value, "\n")
+        if(self.next_token.value != "("):
             print("Error...")
             exit()
-        
-        self.id_list()
-
         self.advance_token()
+        
+        print("Current token:", self.current_token.value, "\n")
+        self.expression()
+        print("Current token:", self.next_token.value, "Line" ,self.current_token.line , "\n")
+
         if(self.current_token.value != ")"):
             print("Error at line", self.current_token.line, ". Missing a ')'.")
             exit()
@@ -691,32 +700,58 @@ class Parser:
     def return_state(self):
         print("return_state")
         # make it so you can do return fib(3)
-        self.expresion()
+        self.expression()
         return
 
     #to be tested
     def elif_state(self):
         print("elif_state")
-        self.exprextion()
-        self.advance_token()
-        if(self.current_token.value != ":"):
+        print("Current token", self.current_token.value, "Line:", self.current_token.line)
+        has_brackets = 0
+        self.condition()
+        if(self.next_token.value != ":"):
             print("Error ...")
-            exit
-        self.code_block_state()
+            exit()
+
+        self.advance_token()
+
+        if(self.next_token.value == "#{"):
+            self.advance_token()
+            has_brackets = 1
         
+        
+        self.code_block_state(0, has_brackets)
+        
+        if(has_brackets == 1 and self.next_token.value != "#}"):
+            print("Error")
+            exit()
+
         if(self.next_token.value == "elif"):
             self.elif_state()
+
         return
 
     #to be tested
     def else_state(self):
         print("else_state")
         print("Current token", self.current_token.value, "Line:", self.current_token.line)
+        self.advance_token()
         if(self.next_token.value != ":"):
             print("Error ...")
             exit()
+    
+        self.advance_token()
 
-        self.code_block_state()
+        if(self.next_token.value == "#{"):
+            self.code_block_state(0, 1)
+            if(self.next_token.value != "#}"):
+                print("Error missing a #}")
+                exit()
+            self.advance_token()
+            return
+
+        self.code_block_state(0, 0)
+
         return
 
 #main function
