@@ -293,18 +293,21 @@ class Parser:
             print("Error at line ", self.current_token.line, "Missing keyword")
             exit()
 
-        self.advance_token()
 
-        if(self.current_token.type != "ID"):
+        if(self.next_token.type != "ID"):
             print("Error at line ", self.current_token.line ,". Expected variable name.")
             exit()
 
+        self.id_list()
 
+        if(self.next_token.value == "="):
+            self.advance_token()
+            self.expression()
+    
         if(self.next_token.value == "#int"):
             self.advance_token()
             self.assignments_state()
-            return
-
+    
         return
 
     #to be tested
