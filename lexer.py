@@ -343,7 +343,9 @@ class Parser:
             exit()
 
         self.id_list()
-
+        if(self.current_token.value != ')'):
+            print("Error ...")
+            exit()
         self.advance_token()
         if(self.current_token.value != "#{"):
             print("Error...")
