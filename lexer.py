@@ -307,29 +307,28 @@ class Parser:
         print("assignments state")
         print("Current token ", self.current_token.value , " Line ", self.current_token.line)
 
+    
         if(self.current_token.value != "#int"):
             print("Error")
             exit()
 
-       
-        if(self.next_token.value != "="):
-            return
+        self.advance_token()
 
-        self.advance_token()
-        self.advance_token()
         if(self.current_token.type != "ID"):
             print("Error at line ", self.current_token.line ,". Expected variable name.")
             exit()
-        self.advance_token()
-
-
-        if(self.current_token.value == '='):
-            self.expression()
 
 
         if(self.next_token.value == "#int"):
             self.advance_token()
             self.assignments_state()
+            return
+
+
+        if(self.next_token.value == "="):
+            self.advance_token()
+            self.advance_token()
+            self.expression()
 
         return
 
@@ -379,7 +378,7 @@ class Parser:
 
         self.advance_token()
         if(self.current_token.value != "#}"):
-            print("Error ..")
+            print("function declaration_Error")
             exit()
            
         if(self.next_token.value == "def"):
@@ -462,6 +461,7 @@ class Parser:
             else:
                 self.assignments_state()
         else:
+            print("code_block_Error")
             print("Error at line", self.current.line, ". Code block not ended properly")
             exit()
         
