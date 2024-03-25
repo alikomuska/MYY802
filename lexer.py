@@ -152,11 +152,7 @@ class Lexer:
         result =''
         while self.current_char is not None and  self.current_char in OPERATORS :
             result += self.current_char
-            if result == '-' and self.peek() in DIGITS:
-                self.advance() 
-                num_token = self.make_number()  # Treat it as a negative number
-                num_token.value = -int(num_token.value)  # Negate the value
-                return num_token # Consume the digit
+            
                 
         
             self.advance()
