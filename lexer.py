@@ -334,6 +334,7 @@ class Parser:
 
     #to be tested
     def functions_declaration_state(self):
+        print("function_declaration_state")
         #no need to check def
         self.advance_token()
         if(self.current_token.type != "ID"):
@@ -377,6 +378,7 @@ class Parser:
     
     #to be done
     def main_function_state(self):
+        print("main_function_state")
         #no need to check #def
         self.advance_token()
         if(self.current_token.value != "main"):
@@ -399,6 +401,7 @@ class Parser:
     
     #to be done
     def id_list(self):
+        print("id_list")
         self.advance_token()
         # Check if the current token is an ID
         if( self.current_token.type == 'ID'):
@@ -420,6 +423,7 @@ class Parser:
 
 
     def code_block_state(self, is_main):
+        print("code_block_state")
         self.advance_token()
 
         if(self.current_token.value == "if"):
@@ -466,7 +470,7 @@ class Parser:
 
     #to be tested
     def while_state(self):
-
+        print("while_state")
         self.condition()
 
         self.advance_token()
@@ -491,6 +495,7 @@ class Parser:
 
 
     def if_state(self):
+        print("if_state")
         #check for condition
         self.condition()
 
@@ -527,6 +532,7 @@ class Parser:
 
 
     def print_state(self):
+        print("print_state")
         has_brackets=0
         if self.next_token.value == '(':
             self.advance_token()
@@ -543,59 +549,54 @@ class Parser:
 
     ##########################################    
     def condition(self):
+        print("Condition")
         while(self.next_token.value != ":"):
             self.advance_token()
         return
 
     def expression(self):
-        self.advance_token()
+        print("Expression")
+        print("Current token:", self.current_token.value)
+        print("")
         has_parenthesis = 0
 
-        if(self.current_token.value == "("):
+        if(self.next_token.value == "("):
             has_parenthesis = 1
-            self.expression()
-        
-        self.term
-        self.advance_token()
-        
-
-
-        if(has_parenthesis == 1):
-            if(self.current_token.type == "OPERATOR"):
-                self.term() 
-         
-        #####
-        #####
-        #####
-
-
-        if(has_parenthesis == 1):
-            if(self.next_token.value != ')'):
-                print("Error expexted ')'")
-                exit()
-        
-
-        ##########################
-
-        #self.advance_token()
-        
-        if(self.next_token.type == "OPERATOR"):
             self.advance_token()
             self.expression()
 
+        self.term()        
 
+        if(self.next_token.value == ")" and has_parenthesis == 1):
+            has_parenthesis = 0
+            self.advance_token()
+
+        if(self.next_token.type == "OPERANT"):
+            self.advance_token()
+            self.expression()
+        else:
+            if(has_parenthesis == 1):
+                print("Error missing a ')'")
+                exit()
+            return
+
+        if(self.next_token.value != ")" and has_parenthesis == 1):
+            print("Error missing a ')'")
+            exit()
+            
         return
 
     def term(self):
+        print("term")
+        print("Current token:", self.current_token.value)
+        print("")
         #check if term is int, ID, function call
         self.advance_token()
 
         if(self.current_token.type == "ID"):
             if(self.next_token.value == '('):
-                self.advance_token() 
                 self.function_call()
                 return
-            self.advance_token()
         elif(self.current_token.type == "INT"):
             return
         else:
@@ -604,10 +605,22 @@ class Parser:
 
         return
 
-    ##########################################
 
     
     def function_call(self):
+        print("function_call")
+        self.advance_token()
+        if(self.current_token.value != "("):
+            print("Error...")
+            exit()
+        
+        self.id_list()
+
+        self.advance_token()
+        if(self.current_token.value != ")"):
+            print("Error at line", self.current_token.line, ". Missing a ')'.")
+            exit()
+
         return
 
 
@@ -615,6 +628,7 @@ class Parser:
 
     #to be tested
     def input_state(self):
+        print("input_state")
         if(self.current_token.value != "="):
             print("Error at line", self.current_token.line, ". Missing a '='")
             exit()
@@ -647,12 +661,14 @@ class Parser:
 
     #to be done
     def return_state(self):
+        print("return_state")
         # make it so you can do return fib(3)
         self.expresion()
         return
 
     #to be tested
     def elif_state(self):
+        print("elif_state")
         self.exprextion()
         self.advance_token()
         if(self.current_token.value != ":"):
@@ -666,6 +682,7 @@ class Parser:
 
     #to be tested
     def else_state(self):
+        print("else_state")
         self.advannce_token()
         if(self.current_token.value != ":"):
             print("Error ...")
