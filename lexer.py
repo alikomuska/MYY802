@@ -311,8 +311,12 @@ class Parser:
             print("Error")
             exit()
 
-        self.advance_token()
+       
+        if(self.next_token.value != "="):
+            return
 
+        self.advance_token()
+        self.advance_token()
         if(self.current_token.type != "ID"):
             print("Error at line ", self.current_token.line ,". Expected variable name.")
             exit()
