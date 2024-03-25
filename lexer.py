@@ -335,20 +335,29 @@ class Parser:
         #no need to check def
         self.advance_token()
         if(self.current_token.type != "ID"):
-            print("Error ...")
+            print("Error 1", self.current_token.value, "Line", self.current_token.line)
             exit()
+
         self.advance_token()
         if(self.current_token.value != '('):
-            print("Error ...")
+            print("Error 2", self.current_token.value, "Line", self.current_token.line)
             exit()
 
         self.id_list()
+        self.advance_token()
+
         if(self.current_token.value != ')'):
-            print("Error ...")
+            print("Error 3", self.current_token.value, "Line", self.current_token.line)
             exit()
+
+        self.advance_token()
+        if(self.current_token.value != ":"):
+            print("Error 4", self.current_token.value, "Line", self.current_token.line)
+            exit()
+
         self.advance_token()
         if(self.current_token.value != "#{"):
-            print("Error 1", self.current_token.value)
+            print("Error 5", self.current_token.value, "Line", self.current_token.line)
             exit()
         self.advance_token()
             
@@ -356,7 +365,7 @@ class Parser:
         self.assignments_state()
 
         #functions
-        self.function_declaration_state()
+        self.functions_declaration_state()
         
         #globals
         self.global_state()
