@@ -264,9 +264,6 @@ class Parser:
             while(self.next_token.value != "##"):
                 self.next_token = self.lex.get_next_token() 
             self.next_token = self.lex.get_next_token()
-
-        print("Current token: ", self.current_token.value)
-        print("")
         return 
         
 
@@ -547,12 +544,13 @@ class Parser:
             else:
                 print("Expected ')'")
 
-    ##########################################    
+
     def condition(self):
         print("Condition")
         while(self.next_token.value != ":"):
             self.advance_token()
         return
+
 
     def expression(self):
         print("Expression")
@@ -564,14 +562,14 @@ class Parser:
             has_parenthesis = 1
             self.advance_token()
             self.expression()
-
-        self.term()        
+        else:
+            self.term()        
 
         if(self.next_token.value == ")" and has_parenthesis == 1):
             has_parenthesis = 0
             self.advance_token()
 
-        if(self.next_token.type == "OPERANT"):
+        if(self.next_token.type == "OPERATOR"):
             self.advance_token()
             self.expression()
         else:
@@ -587,14 +585,14 @@ class Parser:
         return
 
     def term(self):
+        #check if term is int, ID, function call
+        self.advance_token()
         print("term")
         print("Current token:", self.current_token.value)
         print("")
-        #check if term is int, ID, function call
-        self.advance_token()
 
         if(self.current_token.type == "ID"):
-            if(self.next_token.value == '('):
+            if(self.next_token.value == "("):
                 self.function_call()
                 return
         elif(self.current_token.type == "INT"):
