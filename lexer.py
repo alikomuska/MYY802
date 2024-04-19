@@ -735,6 +735,27 @@ class Parser:
 
         return
 
+
+
+
+################################################
+####       Intemediate Code Generation      ####
+################################################
+
+
+class Int_Code_Generator:
+    
+    def __init__(self, sourceCode):
+        self.sourceCode
+
+
+
+
+
+
+
+
+
 #main function
 def main():
     inputFilePath = sys.argv[-1]
