@@ -746,11 +746,26 @@ class Parser:
 class Int_Code_Generator:
     
     def __init__(self, sourceCode):
-        self.sourceCode
+        self.sourceCode = sourceCode
+        self.symbol_table = []
 
 
+    def generator(self):
+        function_loader()
+        # main function
+        return
 
 
+    def function_loader(self):
+        ## while (token!= def)
+
+        return
+
+class Symbol:
+
+    def __init__(self, type):
+        self.type = type
+        self.func_code = Null
 
 
 
