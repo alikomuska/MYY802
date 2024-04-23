@@ -660,7 +660,7 @@ class Parser:
             exit()
 
         self.advance_token()
-        if(self.current_token.value != ')'):
+        if(self.current_token.value != ')')
             print("Error at line", self.current_token.line, ". Missing a ')'")
             exit()
 
@@ -770,9 +770,32 @@ class Compiler:
         self.symbol_table = []
         self.tokens = self.lex.tokens
         self.token_index = 0
-        self.current_token = self.tokens[0]
-        self.next_token = self.tokens[1]
+        self.current_token = Token("NULL", "", 0)
+        self.next_token = Token("NULL" , "", 0)
+        self.token_init()
         self.make_symbols()
+        
+
+    def token_init(self):
+        #initialyze current token     
+        self.next_token = self.lex.get_next_token()
+        if(self.next_token.value == "##"):
+            self.next_token = self.lex.get_next_token()
+            while(self.next_token.value != "##"):
+                self.next_token = self.lex.get_next_token() 
+            self.next_token = self.lex.get_next_token()
+        return
+
+
+    def advance(self):
+        self.current_token= self.next_token
+        self.next_token = self.lex.get_next_token()
+        if(self.next_token.value == "##"):
+            self.next_token = self.lex.get_next_token()
+            while(self.next_token.value != "##"):
+                self.next_token = self.lex.get_next_token() 
+            self.next_token = self.lex.get_next_token()
+        return 
         
         
     def advance(self):
@@ -822,7 +845,7 @@ class Compiler:
     def functions_loader(self):
         function_tokens = []
         function_par = []
-        bracket_count = 0
+        bracket_count = 1
 
         self.advance()
         function_name = self.current_token.value
@@ -838,21 +861,38 @@ class Compiler:
                 self.advance()
     
         self.advance()
+        self.advance()
 
-        while (self.current_token.value != "#}"):
+        while (self.current_token.value != "#}" or bracket_count != 0):
             self.advance()
             function_tokens.append(self.current_token)
+        
+            if(function_name == "leap"):
+                print(self.current_token.value)
 
-        self.advance()
+
+            if(self.current_token.value == "#{"):
+                bracket_count+=1
+
+            if(self.current_token.value == "#}"):
+                bracket_count-=1
+            
+
+        
 
         self.symbol_table.append(Symbol(function_name, "function", function_tokens, None))
 
+        self.advance()
+        print("here token", self.current_token.value)
         if(self.current_token.value == "#def"):
+            print("hi")
             return
         
         if(self.current_token.value == "def"):
+            print("hi1")
             self.functions_loader()
 
+        
         return
 
 
