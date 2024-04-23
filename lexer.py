@@ -274,7 +274,6 @@ class Parser:
     #startRule
     def syntax_analyzer(self):
         self.declarations_state()
-        self.advance_token()
         if(self.current_token.value != "#def"):
             print("Error at line", self.current_token.line, ". Main function missing")
             exit()
@@ -283,9 +282,12 @@ class Parser:
 
     #to be tested
     def declarations_state(self):
-        self.assignments_state()
-        self.advance_token()
-        self.functions_declaration_state()
+        if(self.current_token.value == "#int"):
+            self.assignments_state()
+            self.advance_token()
+        if(self.current_token.value == "def"):
+            self.functions_declaration_state()
+            self.advance_token()
         return
 
     #to be tested
@@ -734,9 +736,45 @@ class Int_Code_Generator:
         self.token_index = 0
         self.current_token = tokens[0]
         self.next_token = tokens[1]
+
+
+
+
+
+class Symbol:
+
+    def __init__(self, name, symbol_type):
+        self.name = name
+        self.symbol_type = symbol_type
+        self.func_code = []
+        self.func_par = []
+
+
+
+
+
+class Compiler:
+
+    def __init__(self, sourceCode):
+    	#Lexer
+        self.lex = Lexer(sourceCode)
+        
+        #Parser
+        self.par = Parser(self.lex)
+        self.par.syntax_analyzer()
+
+        #Int_Code_Genarator
+        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens)
+        
+        #Fields
+        self.symbol_table = []
+        self.tokens = self.lex.tokens
+        self.token_index = 0
+        self.current_token = self.tokens[0]
+        self.next_token = self.tokens[1]
         self.make_symbols()
-
-
+        
+        
     def advance(self):
         if(self.token_index == len(self.tokens) - 1):
             self.current_token = None
@@ -754,6 +792,7 @@ class Int_Code_Generator:
 
     def make_symbols(self):
         if(self.current_token.value == "def" and self.next_token.value == "main"):
+            print("main")
             return
 
         if(self.current_token.value == "#int"):
@@ -792,33 +831,6 @@ class Int_Code_Generator:
         #self.function_loader()
         return
 
-
-
-class Symbol:
-
-    def __init__(self, name, symbol_type):
-        self.name = name
-        self.symbol_type = symbol_type
-        self.func_code = []
-        self.func_par = []
-
-
-
-
-
-class Compiler:
-
-    def __init__(self, sourceCode):
-    	#Lexer
-        self.lex = Lexer(sourceCode)
-        
-        #Parser
-        self.par = Parser(self.lex)
-        self.par.syntax_analyzer()
-
-        #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens)
-        
 
 
 #main function
