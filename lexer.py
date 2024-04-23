@@ -743,7 +743,7 @@ class Int_Code_Generator:
 
 class Symbol:
 
-    def __init__(self, name, symbol_type):
+    def __init__(self, name, symbol_type, func_code, func_par):
         self.name = name
         self.symbol_type = symbol_type
         self.func_code = []
@@ -787,48 +787,72 @@ class Compiler:
             self.next_token = None
             return
 
-        self.current_token = self.tokens[self.token_index + 1]
+        self.next_token = self.tokens[self.token_index + 1]
 
 
     def make_symbols(self):
         if(self.current_token.value == "def" and self.next_token.value == "main"):
-            print("main")
             return
 
         if(self.current_token.value == "#int"):
             self.variables_loader()
-    
-        for i in self.symbol_table:
-            print(i.name)
+            self.advance()
 
-        #if(self.current_token.value == "def"):
-        #    self.functions_loader()
-        
+        if(self.current_token.value == "def"):
+            self.functions_loader()
+
+        for i in range(len(self.symbol_table)):
+            print(self.symbol_table[i].name)
+
         # main function
         return
 
 
     def variables_loader(self):
         self.advance()
-        symbol = Symbol(self.current_token.value , "variable")
+        self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
 
         if(self.next_token.value == "#int"):
-            self.variable_loader()
+            self.advance()
+            self.variables_loader()
 
         return
 
 
     def functions_loader(self):
+        function_tokens = []
+        function_par = []
+        bracket_count = 0
+
         self.advance()
-        if(self.current_token.value == "main"):
+        function_name = self.current_token.value
+        self.advance()
+        self.advance()
+
+
+        while(self.current_token.value != ")"):
+            print(function_name, "Parameters token:", self.current_token.value)
+            function_par.append(self.current_token.value)
+            self.advance()
+            if(self.current_token.value == ","):
+                self.advance()
+    
+        self.advance()
+
+        while (self.current_token.value != "#}"):
+            self.advance()
+            function_tokens.append(self.current_token)
+
+        self.advance()
+
+        self.symbol_table.append(Symbol(function_name, "function", function_tokens, None))
+
+        if(self.current_token.value == "#def"):
             return
         
-        #symbol = Symbol("function")
+        if(self.current_token.value == "def"):
+            self.functions_loader()
 
-        #while (self.current_token.value != "def"):
-         #   continie
-
-        #self.function_loader()
         return
 
 
