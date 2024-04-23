@@ -729,52 +729,76 @@ class Parser:
 class Int_Code_Generator:
     
     def __init__(self, sourceCode, tokens):
-        self.tokens = tokens
         self.symbol_table = []
-        self.lex.token_index = -1
-        self.current_token = None
+        self.tokens = tokens
+        self.token_index = 0
+        self.current_token = tokens[0]
+        self.next_token = tokens[1]
+        self.make_symbols()
 
+
+    def advance(self):
+        if(self.token_index == len(self.tokens) - 1):
+            self.current_token = None
+            return
+
+        self.current_token = self.next_token
+        self.token_index += 1
+
+        if(self.token_index == len(self.tokens) - 1):
+            self.next_token = None
+            return
+
+        self.current_token = self.tokens[self.token_index + 1]
+
+
+    def make_symbols(self):
+        if(self.current_token.value == "def" and self.next_token.value == "main"):
+            return
+
+        if(self.current_token.value == "#int"):
+            self.variables_loader()
     
+        for i in self.symbol_table:
+            print(i.name)
 
-    def generator(self):
-        self.advance_token()
-
-
-        #var loader
-        function_loader()
+        #if(self.current_token.value == "def"):
+        #    self.functions_loader()
+        
         # main function
         return
 
 
-    def var_loader(self):
+    def variables_loader(self):
+        self.advance()
+        symbol = Symbol(self.current_token.value , "variable")
 
-        
+        if(self.next_token.value == "#int"):
+            self.variable_loader()
 
-        symbol = Symbol("variable")
         return
 
 
-
-    def function_loader(self):
-
-        #self.advance()
+    def functions_loader(self):
+        self.advance()
         if(self.current_token.value == "main"):
             return
         
         #symbol = Symbol("function")
 
-        while (token.value != "def"):
-            self.func_code.append(token.value)
+        #while (self.current_token.value != "def"):
+         #   continie
 
-        self.function_loader()
+        #self.function_loader()
         return
 
 
 
 class Symbol:
 
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, name, symbol_type):
+        self.name = name
+        self.symbol_type = symbol_type
         self.func_code = []
         self.func_par = []
 
@@ -789,11 +813,11 @@ class Compiler:
         self.lex = Lexer(sourceCode)
         
         #Parser
-        self.par = Parser(self.lex.tokens)
+        self.par = Parser(self.lex)
         self.par.syntax_analyzer()
 
         #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.lex)
+        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens)
         
 
 
