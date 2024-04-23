@@ -227,11 +227,12 @@ class Lexer:
 
 class Parser:
 
-    def __init__(self,sourceCode):
-        self.lex = Lexer(sourceCode)
+    def __init__(self, lex):
+        self.lex = lex
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
         self.token_init()
+
 
     def token_init(self):
         #initialyze current token
@@ -460,24 +461,6 @@ class Parser:
         
         self.code_block_state(0, 1)
         return
-    #######################################################################
-    #    #if is_main == 0 run until #}
-    #    if(is_main == 0):
-    #        if(self.next_token.value != "#}"):
-    #            self.advance_token()
-    #            self.code_block_state(0)
-    #        return
-
-    #    #if is_main == 1 run until end of file
-    #    if(is_main == 1):
-    #        if(self.next_token.value != ""):
-    #            self.advance_token()
-    #            self.code_block_state(0)
-    #            return
-    #        else:
-    #            print("Compilation done")
-    #            return
-    #    return
 
 
 ########################################
@@ -745,41 +728,81 @@ class Parser:
 
 class Int_Code_Generator:
     
-    def __init__(self, sourceCode):
-        self.sourceCode = sourceCode
+    def __init__(self, sourceCode, tokens):
+        self.tokens = tokens
         self.symbol_table = []
+        self.lex.token_index = -1
+        self.current_token = None
 
+    
 
     def generator(self):
+        self.advance_token()
+
+
+        #var loader
         function_loader()
         # main function
         return
 
 
-    def function_loader(self):
-        ## while (token!= def)
+    def var_loader(self):
 
+        
+
+        symbol = Symbol("variable")
         return
+
+
+
+    def function_loader(self):
+
+        #self.advance()
+        if(self.current_token.value == "main"):
+            return
+        
+        #symbol = Symbol("function")
+
+        while (token.value != "def"):
+            self.func_code.append(token.value)
+
+        self.function_loader()
+        return
+
+
 
 class Symbol:
 
     def __init__(self, type):
         self.type = type
-        self.func_code = Null
+        self.func_code = []
+        self.func_par = []
 
 
 
+
+
+class Compiler:
+
+    def __init__(self, sourceCode):
+    	#Lexer
+        self.lex = Lexer(sourceCode)
+        
+        #Parser
+        self.par = Parser(self.lex.tokens)
+        self.par.syntax_analyzer()
+
+        #Int_Code_Genarator
+        self.int_generator = Int_Code_Generator(sourceCode, self.lex)
+        
 
 
 #main function
 def main():
     inputFilePath = sys.argv[-1]
     sourceCode = open(inputFilePath).read()
-    lex = Lexer(sourceCode)
-    
-
-    par = Parser(sourceCode)
-    par.syntax_analyzer()
+	
+    compiler = Compiler(sourceCode)
 
 if __name__ == "__main__":
     main()
