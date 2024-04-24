@@ -660,7 +660,7 @@ class Parser:
             exit()
 
         self.advance_token()
-        if(self.current_token.value != ')')
+        if(self.current_token.value != ")"):
             print("Error at line", self.current_token.line, ". Missing a ')'")
             exit()
 
@@ -746,8 +746,8 @@ class Symbol:
     def __init__(self, name, symbol_type, func_code, func_par):
         self.name = name
         self.symbol_type = symbol_type
-        self.func_code = []
-        self.func_par = []
+        self.func_code = func_code
+        self.func_par = func_par
 
 
 
@@ -769,7 +769,7 @@ class Compiler:
         #Fields
         self.symbol_table = []
         self.tokens = self.lex.tokens
-        self.token_index = 0
+        self.token_index = -1
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
         self.token_init()
@@ -777,40 +777,41 @@ class Compiler:
         
 
     def token_init(self):
-        #initialyze current token     
-        self.next_token = self.lex.get_next_token()
+        #initialyze current token
+        self.current_token = self.get_next_token()
+        if(self.current_token.value == "##"):
+            self.current_token = self.get_next_token()
+            while(self.current_token.value != "##"):
+                self.current_token = self.get_next_token() 
+            self.current_token = self.get_next_token()
+        
+        #initialyze current token
+        self.next_token = self.get_next_token()
         if(self.next_token.value == "##"):
-            self.next_token = self.lex.get_next_token()
+            self.next_token = self.get_next_token()
             while(self.next_token.value != "##"):
-                self.next_token = self.lex.get_next_token() 
-            self.next_token = self.lex.get_next_token()
+                self.next_token = self.get_next_token() 
+            self.next_token = self.get_next_token()
         return
 
 
     def advance(self):
         self.current_token= self.next_token
-        self.next_token = self.lex.get_next_token()
+        self.next_token = self.get_next_token()
         if(self.next_token.value == "##"):
-            self.next_token = self.lex.get_next_token()
+            self.next_token = self.get_next_token()
             while(self.next_token.value != "##"):
-                self.next_token = self.lex.get_next_token() 
-            self.next_token = self.lex.get_next_token()
+                self.next_token = self.get_next_token() 
+            self.next_token = self.get_next_token()
         return 
         
         
-    def advance(self):
-        if(self.token_index == len(self.tokens) - 1):
-            self.current_token = None
-            return
+    def get_next_token(self):
+        self.token_index+=1
+        if(self.token_index + 1 >= len(self.tokens)):
+            return Token("Null", "", 0)
+        return self.tokens[self.token_index] 
 
-        self.current_token = self.next_token
-        self.token_index += 1
-
-        if(self.token_index == len(self.tokens) - 1):
-            self.next_token = None
-            return
-
-        self.next_token = self.tokens[self.token_index + 1]
 
 
     def make_symbols(self):
@@ -823,9 +824,6 @@ class Compiler:
 
         if(self.current_token.value == "def"):
             self.functions_loader()
-
-        for i in range(len(self.symbol_table)):
-            print(self.symbol_table[i].name)
 
         # main function
         return
@@ -852,9 +850,7 @@ class Compiler:
         self.advance()
         self.advance()
 
-
         while(self.current_token.value != ")"):
-            print(function_name, "Parameters token:", self.current_token.value)
             function_par.append(self.current_token.value)
             self.advance()
             if(self.current_token.value == ","):
@@ -864,12 +860,8 @@ class Compiler:
         self.advance()
 
         while (self.current_token.value != "#}" or bracket_count != 0):
-            self.advance()
             function_tokens.append(self.current_token)
-        
-            if(function_name == "leap"):
-                print(self.current_token.value)
-
+            self.advance()
 
             if(self.current_token.value == "#{"):
                 bracket_count+=1
@@ -878,21 +870,16 @@ class Compiler:
                 bracket_count-=1
             
 
-        
-
-        self.symbol_table.append(Symbol(function_name, "function", function_tokens, None))
+        function_tokens.append(self.current_token)
+        self.symbol_table.append(Symbol(function_name, "function", function_tokens, function_par))
 
         self.advance()
-        print("here token", self.current_token.value)
         if(self.current_token.value == "#def"):
-            print("hi")
             return
         
         if(self.current_token.value == "def"):
-            print("hi1")
             self.functions_loader()
 
-        
         return
 
 
