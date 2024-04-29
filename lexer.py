@@ -730,13 +730,64 @@ class Parser:
 
 class Int_Code_Generator:
     
-    def __init__(self, sourceCode, tokens):
+    def __init__(self, sourceCode, tokens, parser, index):
+        self.parser = parser
         self.symbol_table = []
         self.tokens = tokens
-        self.token_index = 0
-        self.current_token = tokens[0]
-        self.next_token = tokens[1]
+        self.quads = []
+        self.token_index = index
+        self.current_label = 0
+        self.current_token = self.get_next_token()
+        self.init_code_maker()
 
+    def init_code_maker(self):
+
+        #self.declarations() mia methodos pou tha katanalonei ta "#int var_name"
+
+
+
+        while (self.current_token.type != "NULL"):
+
+            ## assiment
+            if(self.current_token.type == "ID"):
+                #
+                return
+    
+            ## print
+            if(self.current_token.type == "ID"):
+                #
+                return
+
+            ## return
+            if(self.current_token.type == "ID"):
+                #
+                return
+
+            ## if
+            if(self.current_token.type == "ID"):
+                #
+                return
+
+            ## while
+            if(self.current_token.type == "ID"):
+                #
+                return
+
+            self.get_next_token()
+
+        return
+
+
+    def get_next_token(self):
+        self.token_index+=1
+        if(self.token_index >= len(self.tokens)):
+            self.current_token = Token("NULL", "", 0)
+            return self.current_token 
+        self.current_token = self.tokens[self.token_index]
+        return self.current_token
+
+    def genQuad(operator, oper1, oper2, oper3):
+        return
 
 
 
@@ -763,9 +814,6 @@ class Compiler:
         self.par = Parser(self.lex)
         self.par.syntax_analyzer()
 
-        #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens)
-        
         #Fields
         self.symbol_table = []
         self.tokens = self.lex.tokens
@@ -775,6 +823,9 @@ class Compiler:
         self.token_init()
         self.make_symbols()
         
+        #Int_Code_Genarator
+        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens, self.par, self.token_index)
+
 
     def token_init(self):
         #initialyze current token
