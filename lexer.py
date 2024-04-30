@@ -736,30 +736,38 @@ class Int_Code_Generator:
         self.quads = []
         self.token_index = index
         self.current_label = 0
+        self.temp_var = 0
         self.current_token = self.get_next_token()
         self.init_code_maker()
 
-    def init_code_maker(self):
 
-        #self.declarations() mia methodos pou tha katanalonei ta "#int var_name"
+    def init_code_maker(self):
+                
+        while(self.current_token.value == "#int"):
+            self.get_next_token()
+            self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
+            #why if the previous line works?
+            #maybe I'll put this line the compliler
+            self.get_next_token()
+        
 
         while (self.current_token.type != "NULL"):
 
+            print("current token", self.current_token.value)
             ## assiment
             if(self.current_token.type == "ID"):
                 assiment_var = self.current_token
                 self.get_next_token()
                 line = self.current_token.line
                 expression = []
+                self.get_next_token()
 
                 while(self.current_token.line == line):
-                    print(self.current_token.value)
                     expression.append(self.current_token)    
                     self.get_next_token()
                 
-                self.parenthesis(assiment_var, expression)
-                
-                return
+                #self.assiment(assiment_var, expression)
+                self.return_temp_var()
     
             ## print
             if(self.current_token.type == "ID"):
@@ -786,7 +794,42 @@ class Int_Code_Generator:
         return
 
 
+    def assiment(self, expression):
+        new_expression = []
+        index = 0
+
+        
+        #find parenthesis and calculate them
+        while(index < len(expression)):
+            
+            while(expression[index].value != "("):
+                new_expression.append(expression[index])
+                index+=1
+                break    
+            
+            while(expression[index] != ")"):
+                
+
+                #add 
+                index+=1
+            
+            new_expression = []
+        
+        
+        #do the mult
+
+
+
+
+        #do the additions
+
+
+
+        return
+
     def parenthesis(self, assiment_var, expression):
+        
+
         return
 
 
@@ -810,6 +853,9 @@ class Int_Code_Generator:
         return
 
 
+    def return_temp_var(self):
+        self.temp_var+=1
+        return ("T" + str(self.temp_var - 1))
 
 
 class Symbol:
