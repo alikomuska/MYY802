@@ -12,7 +12,7 @@ KEYWORDS = {
 
 LETTERS=('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 DIGITS=('0123456789')
-OPERATORS = ('+', '-', '*', '%', '<', '>', '==', '<=', '>=', '=')
+OPERATORS = ('+', '-', '*', '//', '%', '<', '>', '==', '<=', '>=', '=')
 SEPARATORS = set({',', ':'})
 GROUPING_SYMBOLS = set({'(', ')', '#{', '#}'})
 COMMENT_SYMBOL = set('##')
@@ -730,8 +730,7 @@ class Parser:
 
 class Int_Code_Generator:
     
-    def __init__(self, sourceCode, tokens, parser, index):
-        self.parser = parser
+    def __init__(self, sourceCode, tokens, index):
         self.symbol_table = []
         self.tokens = tokens
         self.quads = []
@@ -744,13 +743,22 @@ class Int_Code_Generator:
 
         #self.declarations() mia methodos pou tha katanalonei ta "#int var_name"
 
-
-
         while (self.current_token.type != "NULL"):
 
             ## assiment
             if(self.current_token.type == "ID"):
-                #
+                assiment_var = self.current_token
+                self.get_next_token()
+                line = self.current_token.line
+                expression = []
+
+                while(self.current_token.line == line):
+                    print(self.current_token.value)
+                    expression.append(self.current_token)    
+                    self.get_next_token()
+                
+                self.parenthesis(assiment_var, expression)
+                
                 return
     
             ## print
@@ -775,6 +783,18 @@ class Int_Code_Generator:
 
             self.get_next_token()
 
+        return
+
+
+    def parenthesis(self, assiment_var, expression):
+        return
+
+
+    def mul_oper(self):
+        return
+
+
+    def add_oper(self):
         return
 
 
@@ -824,7 +844,7 @@ class Compiler:
         self.make_symbols()
         
         #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens, self.par, self.token_index)
+        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens, self.token_index)
 
 
     def token_init(self):
