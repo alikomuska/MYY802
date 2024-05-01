@@ -746,8 +746,8 @@ class Int_Code_Generator:
         while(self.current_token.value == "#int"):
             self.get_next_token()
             self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
-            #why if the previous line works?
-            #maybe I'll put this line the compliler
+            #why does the previous line work?
+            #maybe I'll put this line into the compliler
             self.get_next_token()
         
 
@@ -794,8 +794,9 @@ class Int_Code_Generator:
         return
 
 
-    def assiment(self, expression):
+    def assiment(self, assiment_var, expression):
         new_expression = []
+        parenthesis = []        
         index = 0
 
         
@@ -808,12 +809,16 @@ class Int_Code_Generator:
                 break    
             
             while(expression[index] != ")"):
-                
-
                 #add 
+                parenthesis.append(expression[index])
                 index+=1
             
-            new_expression = []
+            print(new_expression)
+            self.parenthesis(assiment_var, parenthesis)
+            temp_var = self.temp_var()
+            #make quand 
+            #self.make_quand(op, ...
+            parenthesis = []
         
         
         #do the mult
