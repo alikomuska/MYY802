@@ -765,6 +765,7 @@ class Int_Code_Generator:
 
                 #input
                 if(self.current_token.value == "int"):
+                    #to be checked
                     #print inte code
                     self.genQuad("in", "", "", "")
                     continue
@@ -808,8 +809,7 @@ class Int_Code_Generator:
 
             ## if
             if(self.current_token.value == "if"):
-                line = self.current_token.line
-                expression = []          
+                code_block = []
                 while(self.current_token.line == line):
                     expression.append(self.current_token.value)    
                     self.advance_token()
