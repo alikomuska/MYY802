@@ -735,132 +735,280 @@ class Int_Code_Generator:
         self.tokens = tokens
         self.quads = []
         self.token_index = index
-        self.current_label = 0
+        self.label = 0
         self.temp_var = 0
-        self.current_token = self.get_next_token()
+        self.current_token = Token("NULL", "", 0)
+        self.next_token = Token("NULL" , "", 0)
+        self.token_init()
         self.init_code_maker()
 
 
     def init_code_maker(self):
                 
+        self.advance_token()
+
         while(self.current_token.value == "#int"):
-            self.get_next_token()
+            self.advance_token()
             self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
             #why does the previous line work?
             #maybe I'll put this line into the compliler
-            self.get_next_token()
-        
+            self.advance_token()
 
-        while (self.current_token.type != "NULL"):
 
-            print("current token", self.current_token.value)
+        while(self.current_token.type != "NULL"):
+
             ## assiment
             if(self.current_token.type == "ID"):
-                assiment_var = self.current_token
-                self.get_next_token()
-                line = self.current_token.line
-                expression = []
-                self.get_next_token()
+                assiment_var = self.current_token.value
+                self.advance_token()
+                self.advance_token()
 
-                while(self.current_token.line == line):
-                    expression.append(self.current_token)    
-                    self.get_next_token()
-                
-                #self.assiment(assiment_var, expression)
-                self.return_temp_var()
-    
+                #input
+                if(self.current_token.value == "int"):
+                    #print inte code
+                    self.genQuad("in", "", "", "")
+                    continue
+
+                #a = 1 (constant)
+                elif(self.current_token.line != self.next_token.line):
+                    self.genQuad(":=", self.current_token.value, "", assiment_var)
+                    self.advance_token()
+
+                ## assiment
+                else:
+                    line = self.current_token.line
+                    expression = []          
+                    while(self.current_token.line == line):
+                        expression.append(self.current_token.value)    
+                        self.advance_token()
+                    self.assiment(assiment_var, expression)
+
+            self.print_quads()
+            return #to be deleted
+
+            #self.advance() ??
             ## print
-            if(self.current_token.type == "ID"):
-                #
-                return
+            if(self.current_token.value == "print"):
+                line = self.current_token.line
+                expression = []          
+                while(self.current_token.line == line):
+                    expression.append(self.current_token.value)    
+                    self.advance_token()
+            
+
 
             ## return
-            if(self.current_token.type == "ID"):
-                #
+            if(self.current_token.value == "return"):
+                line = self.current_token.line
+                expression = []          
+                while(self.current_token.line == line):
+                    expression.append(self.current_token.value)    
+                    self.advance_token()
                 return
 
             ## if
-            if(self.current_token.type == "ID"):
-                #
+            if(self.current_token.value == "if"):
+                line = self.current_token.line
+                expression = []          
+                while(self.current_token.line == line):
+                    expression.append(self.current_token.value)    
+                    self.advance_token()
                 return
 
             ## while
-            if(self.current_token.type == "ID"):
-                #
+            if(self.current_token.value == "while"):
+                line = self.current_token.line
+                expression = []          
+                while(self.current_token.line == line):
+                	expression.append(self.current_token.value)    
+                	self.advance_token()
                 return
 
-            self.get_next_token()
+            #self.advance_token()
 
         return
 
 
     def assiment(self, assiment_var, expression):
-        new_expression = []
-        parenthesis = []        
-        index = 0
+        parenthesis_counter = 0
 
-        
-        #find parenthesis and calculate them
-        while(index < len(expression)):
-            
-            while(expression[index].value != "("):
-                new_expression.append(expression[index])
-                index+=1
-                break    
-            
-            while(expression[index] != ")"):
-                #add 
-                parenthesis.append(expression[index])
-                index+=1
-            
-            print(new_expression)
-            self.parenthesis(assiment_var, parenthesis)
-            temp_var = self.temp_var()
-            #make quand 
-            #self.make_quand(op, ...
-            parenthesis = []
-        
-        
+        #remove parenthesis
+        if("(" in expression):
+            expression = self.parenthesis(expression)        
+            print("2 expression", expression)
+
         #do the mult
-
-
-
-
+        self.mult_oper(expression)
+        
         #do the additions
 
-
-
-        return
-
-    def parenthesis(self, assiment_var, expression):
+        self.add_oper(assiment_var, expression)
         
+    
+        return
+
+    def parenthesis(self, expression):
+        new_expression = []
+        parenthesis_counter = 0
+        parenthesis = []
+        index = 0
+        in_parenthesis = False
+    
+        #find parenthesis and calculate them
+        for token in expression:
+            
+            if(token == "(" and in_parenthesis == False):
+                in_parenthesis = True
+                parenthesis_counter+=1
+                continue 
+
+            if(token == ")"):
+                parenthesis_counter-=1
+                if(parenthesis_counter == 0):
+                    #add the temp var from assiment call to the new expression
+                    #new_expression.append(assiment(parenthesis))
+                    in_parenthesis = False
+                    temp = self.return_temp_var()
+                    new_expression.append(temp)
+                    self.assiment(temp, parenthesis)
+                    parenthesis_counter = 0
+                    parenthesis = []
+                if(parenthesis_counter != 0):
+                    in_parenthesis = True
+                    parenthesis.append(token)
+                continue 
+
+
+            if(in_parenthesis):
+                parenthesis.append(token)
+                if(token == "("):
+                    parenthesis_counter+=1
+                continue
+
+            if(in_parenthesis == False):
+                new_expression.append(token)
+                continue
+        return new_expression
+
+
+
+    def mult_oper(self, expression):
+        index = 0
+        new_expression = []
+        
+        while(index < len(expression)):
+            #print(expression[index])
+            if(expression[index] == "*" or expression[index] == "//"):
+                temp = self.return_temp_var() 
+                #check if the order of the oprands are rights
+                self.genQuad(expression[index], expression[index-1], expression[index+1], temp)
+                new_expression.pop()
+                new_expression.append(temp)
+                index+=2
+                continue
+            else:
+                new_expression.append(expression[index])
+                index+=1
+        return
+
+
+    def add_oper(self, assiment_var, expression):
+        self.genQuad(expression[1], expression[0], expression[2], assiment_var)
+        index = 3
+
+        while(index < len(expression)):
+            self.genQuad(expression[index], assiment_var, expression[index+1] ,assiment_var)
+            index+=2
 
         return
 
 
-    def mul_oper(self):
+    def genQuad(self, operator, oper1, oper2, oper3):
+        self.quads.append(Quad(self.label, operator, oper1, oper2, oper3))
+        self.label+=1
         return
 
 
-    def add_oper(self):
+    def nextQuad():
+        return self.label
+
+
+    def newTemp():
+        return
+
+    
+    def emptyList():
+        return
+
+    def makeList():
         return
 
 
-    def get_next_token(self):
-        self.token_index+=1
-        if(self.token_index >= len(self.tokens)):
-            self.current_token = Token("NULL", "", 0)
-            return self.current_token 
-        self.current_token = self.tokens[self.token_index]
-        return self.current_token
-
-    def genQuad(operator, oper1, oper2, oper3):
+    def mergeList():
         return
 
 
     def return_temp_var(self):
         self.temp_var+=1
         return ("T" + str(self.temp_var - 1))
+        
+        
+    def print_quads(self):
+        assiment = ['+', '-', '*', '//']
+
+        for quad in self.quads:
+            if(quad.operator in assiment): 
+                print(quad.operand3 + " = " + str(quad.operand1) + " " + quad.operator + " " + str(quad.operand2))
+            elif(quad.operator == ":="):
+                print(str(quad.operand3) + " = " + str(quad.operand1))
+        return
+
+
+    def advance_token(self):
+       self.current_token= self.next_token
+       self.token_index+=1
+       if(self.token_index >= len(self.tokens)):
+          self.current_token = Token("NULL", "", 0)
+          return
+       self.next_token = self.tokens[self.token_index]
+       if(self.next_token.value == "##"):
+          self.token_index+=1
+          self.next_token = self.tokens[self.token_index]
+          while(self.next_token.value != "##"):
+             self.token_index+=1
+             self.next_token = self.tokens[self.token_index]
+          self.token_index+=1
+          if(self.token_index >= len(self.tokens)):
+             self.next_token = Token("NULL", "", "")   
+             return
+          self.next_token = self.tokens[self.token_index]
+       return 
+        
+        
+    def token_init(self):
+        #initialyze current token
+        self.current_token = self.tokens[self.token_index]
+        if(self.current_token.value == "##"):
+            self.token_index+=1
+            self.current_token = self.tokens[self.token_index]
+            while(self.current_token.value != "##"):
+               self.token_index+=1
+               self.current_token = self.tokens[self.token_index]
+            self.token_index+=1
+            self.current_token = self.tokens[self.token_index]
+        
+        #initialyze current token
+        self.token_index+=1
+        self.next_token = self.tokens[self.token_index]
+        if(self.next_token.value == "##"):
+           self.token_index+=1
+           self.next_token = self.tokens[self.token_index]
+           while(self.next_token.value != "##"):
+              self.token_index+=1
+              self.next_token = self.tokens[self.token_index]
+           self.token_index+=1
+           self.next_token = self.tokens[self.token_index]
+        return
 
 
 class Symbol:
@@ -872,6 +1020,13 @@ class Symbol:
         self.func_par = func_par
 
 
+class Quad:
+    def __init__(self, label, operator, operand1, operand2, operand3):
+        self.label = label
+        self.operator = operator
+        self.operand1 = operand1
+        self.operand2 = operand2
+        self.operand3 = operand3
 
 
 
