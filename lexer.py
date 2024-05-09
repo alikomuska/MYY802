@@ -748,7 +748,7 @@ class Int_Code_Generator:
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
         self.token_init()
-        #self.init_code_maker()
+        self.init_code_maker()
 
 
     def init_code_maker(self):
@@ -794,6 +794,7 @@ class Int_Code_Generator:
                     self.assiment(assiment_var, expression)
 
             self.print_quads()
+            return #do be deleted
 
             #self.advance() ??
             ## print
@@ -844,8 +845,7 @@ class Int_Code_Generator:
             print("2 expression", expression)
 
         #do the mult
-        if(len(expression) > 3):
-            expression = self.mult_oper(expression)
+        expression = self.mult_oper(expression)
         
         #do the additions
         self.add_oper(assiment_var, expression)
@@ -876,7 +876,6 @@ class Int_Code_Generator:
                     index+=1
                     continue
     
-                print("herr")
 
                 while(expression[index] != ")"):
                     parameters.append(expression[index])
@@ -887,13 +886,10 @@ class Int_Code_Generator:
                         break
 
                 #call function inter code maker
-                print("im hetre", expression[index])
                 index+=2
             else:
                 new_expression.append(expression[index])
                 index+=1
-
-        print("func expression", new_expression)
 
         return new_expression
 
@@ -945,7 +941,6 @@ class Int_Code_Generator:
             if(in_parenthesis == False):
                 new_expression.append(token)
                 continue
-        print(new_expression)
         return new_expression
 
 
@@ -953,7 +948,9 @@ class Int_Code_Generator:
     def mult_oper(self, expression):
         index = 0
         new_expression = []
-        
+        if(len(expression) < 3):
+            return expression
+
         while(index < len(expression)):
             if(expression[index] == "*" or expression[index] == "//"):
                 temp = self.return_temp_var() 
@@ -969,7 +966,11 @@ class Int_Code_Generator:
 
 
     def add_oper(self, assiment_var, expression):
-        print("expression", expression)
+
+        if(len(expression) < 3):
+            self.genQuad(":=", expression[0], "",  assiment_var)
+            return
+
         self.genQuad(expression[1], expression[0], expression[2], assiment_var)
         index = 3
 
@@ -1007,8 +1008,8 @@ class Int_Code_Generator:
             condition2.append(self.current_token.value)
             self.advance_token()
         
-        print(condition1)
-        print(condition2)
+        #print(condition1)
+        #print(condition2)
         
 
         return
