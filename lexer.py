@@ -474,11 +474,6 @@ class Parser:
     def while_state(self):
         self.condition()
 
-        self.advance_token()
-        if(self.current_token.value != ":"):
-            print("Error ", self.current_token.value, "Line", self.current_token.line)
-            exit()
-
         has_bracket = 0
         if(self.next_token.value == "#{"):
             self.advance_token()
@@ -499,12 +494,6 @@ class Parser:
 
         #check for condition
         self.condition()
-
-        #check for :
-        self.advance_token()
-        if(self.current_token.value != ':'):
-            print("Error ", self.current_token.value, "Line", self.current_token.line)
-            exit()
 
         has_brackets = 0
         if(self.next_token.value == "#{"):
@@ -550,11 +539,45 @@ class Parser:
 
         return
 
-    #DONE
+    #TO BE DONE
     def condition(self):
-        while(self.next_token.value != ":"):
+        if(self.next_token.value == "elif"):
             self.advance_token()
+            
+        self.bool_term()
+        if(self.current_token.value == "or"):
+            self.bool_factor()
+
+        if(self.current_token.value != ":"):
+            print("Error missing a ':' at line", self.current_token.line)
         return
+
+
+    def bool_term(self):
+        self.bool_factor()
+        if(self.current_token.value == "and"):
+            self.bool_factor()
+    
+        return
+
+    def bool_factor(self):
+        rel_op = [">", "<", ">=", "<=", "==", "!="]
+
+        if(self.next_token.value == "not"):
+            self.advance_token()
+
+        self.expression()
+        self.advance_token()
+        print(self.current_token.value)
+        if(self.current_token.value not in rel_op):
+            print("Error at line", self.current_token.line, "rel operator missing")
+            exit()
+        
+        self.expression()
+        self.advance_token()
+
+        return
+
 
     def expression(self):
         if(self.next_token.value == "+" or self.next_token.value == "-"):
@@ -578,7 +601,7 @@ class Parser:
             has_parenthesis = 0
             self.advance_token()
 
-        if(self.next_token.type == "OPERATOR"):
+        if(self.next_token.value in ["+", "-", "*", "//", "%"]):
             self.advance_token()
             self.expression()
         else:
@@ -684,11 +707,7 @@ class Parser:
     def elif_state(self):
         has_brackets = 0
         self.condition()
-        if(self.next_token.value != ":"):
-            print("Error ", self.current_token.value, "Line", self.current_token.line)
-            exit()
 
-        self.advance_token()
 
         if(self.next_token.value == "#{"):
             self.advance_token()
@@ -794,35 +813,22 @@ class Int_Code_Generator:
                     self.assiment(assiment_var, expression)
 
             self.print_quads()
-            return #do be deleted
+            return
 
-            #self.advance() ??
             ## print
             if(self.current_token.value == "print"):
-                line = self.current_token.line
-                expression = []          
-                while(self.current_token.line == line):
-                    expression.append(self.current_token.value)    
-                    self.advance_token()
-            
+                return
 
 
             ## return
             if(self.current_token.value == "return"):
-                line = self.current_token.line
-                expression = []          
-                while(self.current_token.line == line):
-                    expression.append(self.current_token.value)    
-                    self.advance_token()
                 return
+
 
             ## if
             if(self.current_token.value == "if"):
-                code_block = []
-                while(self.current_token.line == line):
-                    expression.append(self.current_token.value)    
-                    self.advance_token()
                 return
+
 
             ## while
             if(self.current_token.value == "while"):
