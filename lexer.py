@@ -885,6 +885,12 @@ class Int_Code_Generator:
                 new_expression.append(temp)
                 parameters = []
                 index+=2
+                if(expression[index] == ")"):
+                    index+=1
+                    continue
+    
+                print("herr")
+
                 while(expression[index] != ")"):
                     parameters.append(expression[index])
                     
@@ -894,7 +900,7 @@ class Int_Code_Generator:
                         break
 
                 #call function inter code maker
-                print(parameters)
+                print("im hetre", expression[index])
                 index+=2
             else:
                 new_expression.append(expression[index])
@@ -936,7 +942,6 @@ class Int_Code_Generator:
                     temp = self.return_temp_var()
                     new_expression.append(temp)
                     self.assiment(temp, parenthesis)
-                    parenthesis_counter = 0
                     parenthesis = []
                 if(parenthesis_counter != 0):
                     in_parenthesis = True
@@ -953,6 +958,7 @@ class Int_Code_Generator:
             if(in_parenthesis == False):
                 new_expression.append(token)
                 continue
+        print(new_expression)
         return new_expression
 
 
@@ -962,10 +968,8 @@ class Int_Code_Generator:
         new_expression = []
         
         while(index < len(expression)):
-            #print(expression[index])
             if(expression[index] == "*" or expression[index] == "//"):
                 temp = self.return_temp_var() 
-                #check if the order of the oprands are rights
                 self.genQuad(expression[index], expression[index-1], expression[index+1], temp)
                 new_expression.pop()
                 new_expression.append(temp)
