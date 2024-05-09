@@ -616,37 +616,24 @@ class Parser:
 
     
     def function_call(self):
-        print(self.current_token.line)
-        print("function call")
         if(self.next_token.value != "("):
             print("Error ", self.current_token.value, "Line", self.current_token.line)
             exit()
 
         self.advance_token()
-        if(self.next_token.value == ")"):
-            return
-    
+        self.expression()
 
-        if(self.next_token.type != "ID" and self.next_token.type != "INT"):
-            print("Error at line", self.current_token.line, "at function call")
-            exit()
-        
-        self.advance_token()
 
         while(self.next_token.value == ","):
             self.advance_token()
-            if(self.next_token.type != "ID" and self.next_token.type != "INT"):
-                print("Error at line", self.current_token.line, "at function call")
-                exit()
-            
-            self.advance_token()
-        
-        self.advance_token()
+            self.expression()
+
 
         if(self.next_token.value != ")"):
             print("Error at line", self.current_token.line, ". Missing a ')'.")
             exit()
 
+        self.advance_token()
 
         return
 
@@ -761,7 +748,7 @@ class Int_Code_Generator:
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
         self.token_init()
-        self.init_code_maker()
+        #self.init_code_maker()
 
 
     def init_code_maker(self):
