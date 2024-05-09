@@ -616,17 +616,37 @@ class Parser:
 
     
     def function_call(self):
+        print(self.current_token.line)
+        print("function call")
         if(self.next_token.value != "("):
             print("Error ", self.current_token.value, "Line", self.current_token.line)
             exit()
+
         self.advance_token()
-        self.expression()
+        if(self.next_token.value == ")"):
+            return
+    
+
+        if(self.next_token.type != "ID" and self.next_token.type != "INT"):
+            print("Error at line", self.current_token.line, "at function call")
+            exit()
+        
+        self.advance_token()
+
+        while(self.next_token.value == ","):
+            self.advance_token()
+            if(self.next_token.type != "ID" and self.next_token.type != "INT"):
+                print("Error at line", self.current_token.line, "at function call")
+                exit()
+            
+            self.advance_token()
+        
+        self.advance_token()
 
         if(self.next_token.value != ")"):
             print("Error at line", self.current_token.line, ". Missing a ')'.")
             exit()
 
-        self.advance_token()
 
         return
 
@@ -755,6 +775,7 @@ class Int_Code_Generator:
             #maybe I'll put this line into the compliler
             self.advance_token()
 
+        #fuc declaration missing
 
         while(self.current_token.type != "NULL"):
 
@@ -836,10 +857,10 @@ class Int_Code_Generator:
             print("2 expression", expression)
 
         #do the mult
-        expression = self.mult_oper(expression)
+        if(len(expression) > 3):
+            expression = self.mult_oper(expression)
         
         #do the additions
-
         self.add_oper(assiment_var, expression)
     
         return
@@ -854,8 +875,12 @@ class Int_Code_Generator:
             if(expression[index] in op):
                 new_expression.append(expression[index])
                 index+=1
-                continue
-            elif(self.inSymbolTable(expression[index]) == True):
+    
+            elif(index+1 < len(expression) and  expression[index+1] == "("):
+                if(self.inSymbolTable(expression[index]) == False):
+                    print("Error", expression[index], "not declarted")
+                    exit()
+
                 temp = self.return_temp_var()
                 new_expression.append(temp)
                 parameters = []
@@ -876,7 +901,6 @@ class Int_Code_Generator:
                 index+=1
 
         print("func expression", new_expression)
-
 
         return new_expression
 
@@ -954,6 +978,7 @@ class Int_Code_Generator:
 
 
     def add_oper(self, assiment_var, expression):
+        print("expression", expression)
         self.genQuad(expression[1], expression[0], expression[2], assiment_var)
         index = 3
 
