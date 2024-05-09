@@ -730,8 +730,8 @@ class Parser:
 
 class Int_Code_Generator:
     
-    def __init__(self, sourceCode, tokens, index):
-        self.symbol_table = []
+    def __init__(self, sourceCode, tokens, index, symbol_table):
+        self.symbol_table = symbol_table
         self.tokens = tokens
         self.quads = []
         self.token_index = index
@@ -785,7 +785,6 @@ class Int_Code_Generator:
                     self.assiment(assiment_var, expression)
 
             self.print_quads()
-            return #to be deleted
 
             #self.advance() ??
             ## print
@@ -817,20 +816,18 @@ class Int_Code_Generator:
 
             ## while
             if(self.current_token.value == "while"):
-                line = self.current_token.line
-                expression = []          
-                while(self.current_token.line == line):
-                	expression.append(self.current_token.value)    
-                	self.advance_token()
+                self.advance_token()
+                self.while_block()
                 return
 
-            #self.advance_token()
 
         return
 
 
     def assiment(self, assiment_var, expression):
-        parenthesis_counter = 0
+
+        #calculate functions
+        expression = self.calc_functions(expression)
 
         #remove parenthesis
         if("(" in expression):
@@ -838,14 +835,57 @@ class Int_Code_Generator:
             print("2 expression", expression)
 
         #do the mult
-        self.mult_oper(expression)
+        expression = self.mult_oper(expression)
         
         #do the additions
 
         self.add_oper(assiment_var, expression)
-        
     
         return
+
+
+    def calc_functions(self, expression):
+        new_expression = []
+        op = ["+", "-", "*", "//", "%"]
+        index = 0
+
+        while index < len(expression):
+            if(expression[index] in op):
+                new_expression.append(expression[index])
+                index+=1
+                continue
+            elif(self.inSymbolTable(expression[index]) == True):
+                temp = self.return_temp_var()
+                new_expression.append(temp)
+                parameters = []
+                index+=2
+                while(expression[index] != ")"):
+                    parameters.append(expression[index])
+                    
+                    if(expression[index+1] == ","):
+                        index+=2
+                    else:
+                        break
+
+                #call function inter code maker
+                print(parameters)
+                index+=2
+            else:
+                new_expression.append(expression[index])
+                index+=1
+
+        print("func expression", new_expression)
+
+
+        return new_expression
+
+
+    def inSymbolTable(self, token):
+        for symbToken in self.symbol_table:
+            if(token == symbToken.name and symbToken.symbol_type == "function"):
+                return True
+        return False
+
 
     def parenthesis(self, expression):
         new_expression = []
@@ -909,7 +949,7 @@ class Int_Code_Generator:
             else:
                 new_expression.append(expression[index])
                 index+=1
-        return
+        return new_expression
 
 
     def add_oper(self, assiment_var, expression):
@@ -919,6 +959,40 @@ class Int_Code_Generator:
         while(index < len(expression)):
             self.genQuad(expression[index], assiment_var, expression[index+1] ,assiment_var)
             index+=2
+
+        return
+
+
+    def while_block(self):
+        self.condition()
+        return
+
+    
+    def condition(self):
+        condition1 = []
+        condition2 = []
+        op = ["<", ">", ">=", "<=", "==", "!="]
+        rel_op = ""
+        parenthesis_counter = 0
+
+        while(self.current_token.value not in op):
+            condition1.append(self.current_token.value)
+            self.advance_token()
+        
+        self.advance_token()
+        
+        while(self.current_token.value != ")" or parenthesis_counter != 0):
+            if(self.current_token.value == "("):
+                parenthesis_counter +=1
+            elif(self.current_token.value == ")"):
+                parenthesis_counter -=1
+
+            condition2.append(self.current_token.value)
+            self.advance_token()
+        
+        print(condition1)
+        print(condition2)
+        
 
         return
 
@@ -1050,7 +1124,7 @@ class Compiler:
         self.make_symbols()
         
         #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens, self.token_index)
+        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens, self.token_index, self.symbol_table)
 
 
     def token_init(self):
