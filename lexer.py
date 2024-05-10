@@ -538,6 +538,32 @@ class Parser:
             self.advance_token()
         return
 
+
+    def bool_term(self):
+        self.bool_factor()
+        if(self.current_token.value == "and"):
+            self.bool_factor()
+    
+        return
+
+    def bool_factor(self):
+        rel_op = [">", "<", ">=", "<=", "==", "!="]
+
+        if(self.next_token.value == "not"):
+            self.advance_token()
+
+        self.expression()
+        self.advance_token()
+        if(self.current_token.value not in rel_op):
+            print("Error at line", self.current_token.line, "rel operator missing")
+            exit()
+        
+        self.expression()
+        self.advance_token()
+
+        return
+
+
     def expression(self):
         if(self.next_token.value == "+" or self.next_token.value == "-"):
             self.advance_token()
@@ -767,7 +793,7 @@ class Int_Code_Generator:
                     self.assiment(assiment_var, expression)
 
             self.print_quads()
-             #to be deleted
+            print(self.current_token.value)
 
             #self.advance() ??
             ## print
@@ -783,11 +809,7 @@ class Int_Code_Generator:
 
             ## return
             if(self.current_token.value == "return"):
-                line = self.current_token.line
-                expression = []          
-                while(self.current_token.line == line):
-                    expression.append(self.current_token.value)    
-                    self.advance_token()
+                self.genQuad("ret", "", "", "")
                 return
 
             ## if
@@ -903,6 +925,132 @@ class Int_Code_Generator:
             self.genQuad(expression[index], assiment_var, expression[index+1] ,assiment_var)
             index+=2
 
+        return
+
+
+    def while_block(self):
+        self.condition()
+        print(self.current_token.value)
+        #self.code_block()
+
+        return
+
+
+    def code_block(self):
+        bracket_counter = 0
+
+        while(self.current_token.value != "#}" or bracket_counter != 0):
+            
+            ## assiment
+            if(self.current_token.type == "ID"):
+                assiment_var = self.current_token.value
+                self.advance_token()
+                self.advance_token()
+
+                #input
+                if(self.current_token.value == "int"):
+                    #to be checked
+                    #print inte code
+                    self.genQuad("in", "", "", "")
+                    continue
+
+                #a = 1 (constant)
+                elif(self.current_token.line != self.next_token.line):
+                    self.genQuad(":=", self.current_token.value, "", assiment_var)
+                    self.advance_token()
+
+                ## assiment
+                else:
+                    line = self.current_token.line
+                    expression = []          
+                    while(self.current_token.line == line):
+                        expression.append(self.current_token.value)    
+                        self.advance_token()
+                    self.assiment(assiment_var, expression)
+            
+            
+            ## print
+            if(self.current_token.value == "print"):
+                self.genQuad("out", "", "", "")
+                return
+
+
+            ## return
+            if(self.current_token.value == "return"):
+                self.genQuad("ret", "", "", "")
+                return
+
+
+            ##while
+            if(self.current_token.value == "while"):
+                self.while_block()
+
+            ##if
+            if(self.current_token.value == "if"):
+                return
+
+            
+        return
+
+
+    
+    def condition(self):
+        new_condition = []
+        term = []
+        op = ["<", ">", ">=", "<=", "==", "!="]
+        rel_op = ""
+        parenthesis_counter = 0
+
+        while(self.current_token.value != ":"):
+            if(self.current_token.value == "or" or self.current_token.value == "and"):
+                if(len(term) == 1):
+                    new_condition.append(term[0])
+                    term = []
+                    new_condition.append(self.current_token.value)
+                    self.advance_token()
+                    continue
+
+                temp = self.return_temp_var()
+                self.assiment(temp, term)
+                new_condition.append(temp)
+                new_condition.append(self.current_token.value)
+                self.advance_token()
+                term = []
+                continue
+
+            if(self.current_token.value in op):
+                if(len(term) == 1):
+                    new_condition.append(term[0])
+                    new_condition.append(self.current_token.value)
+                    self.advance_token()
+                    term = []
+                    continue
+                temp = self.return_temp_var()
+                self.assiment(temp, term)
+                new_condition.append(temp)
+                new_condition.append(self.current_token.value)
+                self.advance_token()
+                term = []
+                continue
+            term.append(self.current_token.value)
+            self.advance_token()
+
+
+        if(len(term) == 1):
+            new_condition.append(term[0])
+            print(new_condition)
+            return
+
+
+        temp = self.return_temp_var()
+        self.assiment(temp, term)
+        new_condition.append(temp)
+        
+        #self.bool_quad(new_condition)
+        return
+
+
+    def bool_quad(self, condition):
         return
 
 
