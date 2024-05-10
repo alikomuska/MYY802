@@ -12,7 +12,7 @@ KEYWORDS = {
 
 LETTERS=('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 DIGITS=('0123456789')
-OPERATORS = ('+', '-', '*', '//', '%', '<', '>', '==', '<=', '>=', '=')
+OPERATORS = ('+', '-', '*', '%','/','//','!=', '<', '>', '==', '<=', '>=', '!','=')
 SEPARATORS = set({',', ':'})
 GROUPING_SYMBOLS = set({'(', ')', '#{', '#}'})
 COMMENT_SYMBOL = set('##')
@@ -75,20 +75,7 @@ class Lexer:
             elif self.current_char in OPERATORS :
                 
                 current_token = self.make_operators()
-            elif self.current_char=="!" :
-                special_result+=self.current_char
-                self.advance()
-                if self.current_char=='=':
-                    special_result+=self.current_char
-                    self.advance()
-                    current_token=Token('OPERATOR', special_result, self.line)
-            elif self.current_char=='/':
-                special_result+=self.current_char
-                self.advance()
-                if self.current_char=='/':
-                    special_result+=self.current_char
-                    self.advance()
-                    current_token= Token('OPERATOR', special_result, self.line)
+
                 
             elif self.current_char=='#':
                 current_token = self.make_group_symbols()
@@ -149,21 +136,16 @@ class Lexer:
 
 
     def make_operators(self):
-        result =''
-        while self.current_char is not None and  self.current_char in OPERATORS :
-            result += self.current_char
-            
-                
-        
+        reps=0
+        result=''
+        while (self.current_char!=None and self.current_char in OPERATORS) and reps<2 : 
+            result+=self.current_char           
             self.advance()
-           
-            if result == "/" or result == "!":
-                result+=self.current_char
-                self.advance()
-               
-        
 
-        return Token('OPERATOR', result, self.line)
+            if result not in OPERATORS:
+                print("SYNTAX ERROR ")
+                exit()
+        return  Token('OPERATOR',result,self.line)
          
     def peek(self):
         peek_pos = self.pos + 1
@@ -813,6 +795,7 @@ class Int_Code_Generator:
 
             self.print_quads()
             print(self.current_token.value)
+            return
 
             ## print
             if(self.current_token.value == "print"):
