@@ -425,9 +425,7 @@ class Parser:
             return
 
         return
-    
      
-
 
     def code_block_state(self, is_main, multipleLines):
 
@@ -539,6 +537,7 @@ class Parser:
 
         return
 
+
     #TO BE DONE
     def condition(self):
         if(self.next_token.value == "elif"):
@@ -557,8 +556,8 @@ class Parser:
         self.bool_factor()
         if(self.current_token.value == "and"):
             self.bool_factor()
-    
         return
+
 
     def bool_factor(self):
         rel_op = [">", "<", ">=", "<=", "==", "!="]
@@ -614,8 +613,8 @@ class Parser:
             print("Error ", self.current_token.value, "Line", self.current_token.line)
             print("Error missing a ')'")
             exit()
-            
         return
+
 
     def term(self):
         #check if term is int, ID, function call
@@ -636,7 +635,6 @@ class Parser:
         return
 
 
-    
     def function_call(self):
         if(self.next_token.value != "("):
             print("Error ", self.current_token.value, "Line", self.current_token.line)
@@ -658,8 +656,6 @@ class Parser:
         self.advance_token()
 
         return
-
-
 
 
     #DONE
@@ -696,11 +692,13 @@ class Parser:
 
         return
 
+
     #to be done
     def return_state(self):
         # make it so you can do return fib(3)
         self.expression()
         return
+
 
     #to be tested
     def elif_state(self):
