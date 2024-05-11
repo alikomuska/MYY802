@@ -795,6 +795,13 @@ class Int_Code_Generator:
 
             self.print_quads()
             print(self.current_token.value)
+            
+            ## while
+            if(self.current_token.value == "while"):
+                self.advance_token()
+                self.while_block()
+                return
+            
             return
 
             ## print
@@ -814,11 +821,7 @@ class Int_Code_Generator:
                 return
 
 
-            ## while
-            if(self.current_token.value == "while"):
-                self.advance_token()
-                self.while_block()
-                return
+
 
 
         return
@@ -844,7 +847,7 @@ class Int_Code_Generator:
 
 
     def calc_functions(self, expression):
-        new_expression = []
+            new_expression = []
         op = ["+", "-", "*", "//", "%"]
         index = 0
 
@@ -974,6 +977,8 @@ class Int_Code_Generator:
     def while_block(self):
         self.condition()
         print(self.current_token.value)
+
+
         #self.code_block()
 
         return
@@ -1094,6 +1099,17 @@ class Int_Code_Generator:
 
 
     def bool_quad(self, condition):
+        index = 0
+        condtiddon = [a or b and c or d]
+        temp = self.return_temp()
+
+        if(len(condition) == 1):
+            self.genQuad()
+            return
+
+        while(index < len(condition)):
+            
+
         return
 
 
