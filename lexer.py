@@ -1,4 +1,3 @@
-
 import sys
 
 
@@ -799,24 +798,24 @@ class Int_Code_Generator:
             return
 
             ## print
-            if(self.current_token.value == "print"):
+        if(self.current_token.value == "print"):
                 self.genQuad("out", "", "", "")
                 return
 
 
             ## return
-            if(self.current_token.value == "return"):
+        if(self.current_token.value == "return"):
                 self.genQuad("ret", "", "", "")
                 return
 
 
             ## if
-            if(self.current_token.value == "if"):
+        if(self.current_token.value == "if"):
                 return
 
 
             ## while
-            if(self.current_token.value == "while"):
+        if(self.current_token.value == "while"):
                 self.advance_token()
                 self.while_block()
                 return
@@ -970,12 +969,20 @@ class Int_Code_Generator:
             index+=2
 
         return
-
+############### DEN TO TESTAREIS KAN EINIA TERMA PROXEIRO
 
     def while_block(self):
-        self.condition()
-        print(self.current_token.value)
-        #self.code_block()
+        temp_condition=[]
+        while(self.current_token!=':'):
+            temp_condition.append(self.current_token)
+            self.advance_token
+        temp_condition.self.condition()
+        self.advance_token()
+        if(self.current_token.value=="#}"):
+            
+            self.code_block()
+        
+       
 
         return
 
@@ -1095,7 +1102,8 @@ class Int_Code_Generator:
 
 
     def bool_quad(self, condition):
-        return
+
+       return
 
 
     def genQuad(self, operator, oper1, oper2, oper3):
@@ -1113,7 +1121,7 @@ class Int_Code_Generator:
 
     
     def emptyList():
-        return
+        return 
 
     def makeList():
         return
@@ -1338,14 +1346,10 @@ class Compiler:
 
 #main function
 def main():
-    text = input(">>>")
-    lexer_instance = Lexer(text)  # Create an instance of the Lexer class
-    tokens, error = lexer_instance.make_tokens()  # Call the make_tokens method on the instance
-    if error:
-        print(error.as_string())
-    else:
-        print(tokens)
+    inputFilePath = sys.argv[-1]
+    sourceCode = open(inputFilePath).read()
+	
+    compiler = Compiler(sourceCode)
 
 if __name__ == "__main__":
     main()
-
