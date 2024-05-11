@@ -752,9 +752,7 @@ class Int_Code_Generator:
 
 
     def init_code_maker(self):
-                
         self.advance_token()
-
         while(self.current_token.value == "#int"):
             self.advance_token()
             self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
@@ -762,67 +760,10 @@ class Int_Code_Generator:
             #maybe I'll put this line into the compliler
             self.advance_token()
 
+
+        print("start" , self.current_token.value)
         #fuc declaration missing
-
-        while(self.current_token.type != "NULL"):
-
-            ## assiment
-            if(self.current_token.type == "ID"):
-                assiment_var = self.current_token.value
-                self.advance_token()
-                self.advance_token()
-
-                #input
-                if(self.current_token.value == "int"):
-                    #to be checked
-                    #print inte code
-                    self.genQuad("in", "", "", "")
-                    continue
-
-                #a = 1 (constant)
-                elif(self.current_token.line != self.next_token.line):
-                    self.genQuad(":=", self.current_token.value, "", assiment_var)
-                    self.advance_token()
-
-                ## assiment
-                else:
-                    line = self.current_token.line
-                    expression = []          
-                    while(self.current_token.line == line):
-                        expression.append(self.current_token.value)    
-                        self.advance_token()
-                    self.assiment(assiment_var, expression)
-
-            self.print_quads()
-            print(self.current_token.value)
-            
-
-            ## while
-        if(self.current_token.value == "while"):
-            self.advance_token()
-            self.while_block()
-            return
-            
-        return
-
-            ## print
-        if(self.current_token.value == "print"):
-                self.genQuad("out", "", "", "")
-                return
-
-
-            ## return
-        if(self.current_token.value == "return"):
-                self.genQuad("ret", "", "", "")
-                return
-
-
-            ## if
-        if(self.current_token.value == "if"):
-                return
-
-
-
+        self.code_block("NULL")
 
 
         return
@@ -848,7 +789,7 @@ class Int_Code_Generator:
 
 
     def calc_functions(self, expression):
-            new_expression = []
+        new_expression = []
         op = ["+", "-", "*", "//", "%"]
         index = 0
 
@@ -973,25 +914,28 @@ class Int_Code_Generator:
             index+=2
 
         return
-############### DEN TO TESTAREIS KAN EINIA TERMA PROXEIRO
+
 
     def while_block(self):
-        self.condition()
-        print(self.current_token.value)
-
-
-        #self.code_block()
-
+        return_label = self.nextQuad()
+        backpatch_quad = self.condition()
+    
+        print("while token", self.current_token.value)
+        self.code_block("#}")
+        self.genQuad("jump", "", "", return_label)
+        print(backpatch_quad.operator)
+        #self.backpatch(backpatch_quad, self.nextQuad())
         return
 
 
-    def code_block(self):
-        bracket_counter = 0
+    def code_block(self, end_token):
 
-        while(self.current_token.value != "#}" or bracket_counter != 0):
+        while(self.current_token.value != end_token):
             
+            print("code_block", self.current_token.value)
             ## assiment
-            if(self.current_token.type == "ID"):
+            if(self.next_token.value == "="):
+                print("assiment")
                 assiment_var = self.current_token.value
                 self.advance_token()
                 self.advance_token()
@@ -999,14 +943,19 @@ class Int_Code_Generator:
                 #input
                 if(self.current_token.value == "int"):
                     #to be checked
-                    #print inte code
+                    while(self.current_token.line == self.next_token.line):
+                        self.advance_token()
+
+                    self.advance_token()
                     self.genQuad("in", "", "", "")
-                    continue
 
                 #a = 1 (constant)
                 elif(self.current_token.line != self.next_token.line):
                     self.genQuad(":=", self.current_token.value, "", assiment_var)
                     self.advance_token()
+                    self.advance_token()
+                    print("con",self.current_token.value)
+                    print("con",self.current_token.line)
 
                 ## assiment
                 else:
@@ -1017,27 +966,45 @@ class Int_Code_Generator:
                         self.advance_token()
                     self.assiment(assiment_var, expression)
             
-            
+            if(self.current_token.value == "end"):
+                print("end")
+                return
             ## print
             if(self.current_token.value == "print"):
+                print("print")
+                print(self.current_token.line)
+                while(self.current_token.line == self.next_token.line):
+                    self.advance_token()
+                self.advance_token()
                 self.genQuad("out", "", "", "")
+            
+            if(self.current_token.value == "("):
+                print(self.current_token.line)
                 return
-
+        
 
             ## return
             if(self.current_token.value == "return"):
+                print("return")
+                while(self.current_token.line == self.next_token.line):
+                    self.advance_token()
                 self.genQuad("ret", "", "", "")
-                return
+                self.advance_token()
 
 
             ##while
             if(self.current_token.value == "while"):
                 self.while_block()
+                self.advance_token()
 
             ##if
-            if(self.current_token.value == "if"):
-                return
+            #if(self.current_token.value == "if"):
+            #    self.advance_token()
+            #    return
 
+            
+
+            
             
         return
 
@@ -1088,37 +1055,37 @@ class Int_Code_Generator:
         if(len(term) == 1):
             new_condition.append(term[0])
             print(new_condition)
-            return
-
+            return self.bool_quad(new_condition)
 
         temp = self.return_temp_var()
         self.assiment(temp, term)
         new_condition.append(temp)
-        
-        #self.bool_quad(new_condition)
-        return
+        print(new_condition)
+         
+        return self.bool_quad(new_condition)
 
 
     def bool_quad(self, condition):
         index = 0
-        condtiddon = [a or b and c or d]
-        temp = self.return_temp()
 
-        if(len(condition) == 1):
-            self.genQuad()
-            return
-
-        while(index < len(condition)):
+        if(len(condition) == 3):
+            self.genQuad(condition[1], condition[0], condition[2], "")
+            return self.genQuad("jump", "", "", "")
             
+
+        #multiple boolean variables (to be done)
+        while(index < len(condition)):
+            return    
 
         return
 
 
 
     def genQuad(self, operator, oper1, oper2, oper3):
-        self.quads.append(Quad(self.label, operator, oper1, oper2, oper3))
+        quad = Quad(self.label, operator, oper1, oper2, oper3)
+        self.quads.append(quad)
         self.label+=1
-        return
+        return quad
 
 
     def nextQuad(self):
@@ -1140,6 +1107,10 @@ class Int_Code_Generator:
         return
 
 
+    def backpatch(self, quad, label):
+        quad.operand3 = label
+        return
+
     def return_temp_var(self):
         self.temp_var+=1
         return ("T" + str(self.temp_var - 1))
@@ -1147,60 +1118,50 @@ class Int_Code_Generator:
         
     def print_quads(self):
         assiment = ['+', '-', '*', '//']
+        rel_op = [">", "<", ">=", "<=", "==", "!="]
 
         for quad in self.quads:
             if(quad.operator in assiment): 
                 print(quad.operand3 + " = " + str(quad.operand1) + " " + quad.operator + " " + str(quad.operand2))
             elif(quad.operator == ":="):
                 print(str(quad.operand3) + " = " + str(quad.operand1))
+            elif(quad.operator == "jump"):
+                print("jump", str(quad.operand3))
+
+        return
+
+
+    def token_init(self):
+        if(len(self.tokens) == 0):
+            return
+
+        if(len(self.tokens) > 0):
+            self.current_token = self.tokens[0]
+            index = 0
+            return
+
+        if(len(self.tokens) > 1):
+            self.next_token = self.tokens[1]
+            index = 0
+        
         return
 
 
     def advance_token(self):
-       self.current_token= self.next_token
-       self.token_index+=1
-       if(self.token_index >= len(self.tokens)):
-          self.current_token = Token("NULL", "", 0)
-          return
-       self.next_token = self.tokens[self.token_index]
-       if(self.next_token.value == "##"):
-          self.token_index+=1
-          self.next_token = self.tokens[self.token_index]
-          while(self.next_token.value != "##"):
-             self.token_index+=1
-             self.next_token = self.tokens[self.token_index]
-          self.token_index+=1
-          if(self.token_index >= len(self.tokens)):
-             self.next_token = Token("NULL", "", "")   
-             return
-          self.next_token = self.tokens[self.token_index]
-       return 
+        self.token_index += 1
+        if(self.token_index + 1 ==  len(self.tokens)):
+            self.current_token = self.next_token
+            self.next_token = Token("NULL" , "", 0)
+            return
         
-        
-    def token_init(self):
-        #initialyze current token
-        self.current_token = self.tokens[self.token_index]
-        if(self.current_token.value == "##"):
-            self.token_index+=1
-            self.current_token = self.tokens[self.token_index]
-            while(self.current_token.value != "##"):
-               self.token_index+=1
-               self.current_token = self.tokens[self.token_index]
-            self.token_index+=1
-            self.current_token = self.tokens[self.token_index]
-        
-        #initialyze current token
-        self.token_index+=1
-        self.next_token = self.tokens[self.token_index]
-        if(self.next_token.value == "##"):
-           self.token_index+=1
-           self.next_token = self.tokens[self.token_index]
-           while(self.next_token.value != "##"):
-              self.token_index+=1
-              self.next_token = self.tokens[self.token_index]
-           self.token_index+=1
-           self.next_token = self.tokens[self.token_index]
-        return
+        if(self.token_index ==  len(self.tokens)):
+            self.current_token = Token("NULL" , "", 0)
+            return
+
+        self.current_token = self.next_token
+        self.next_token = self.tokens[self.token_index+1]
+
+        return 
 
 
 class Symbol:
@@ -1221,7 +1182,6 @@ class Quad:
         self.operand3 = operand3
 
 
-
 class Compiler:
 
     def __init__(self, sourceCode):
@@ -1234,7 +1194,7 @@ class Compiler:
 
         #Fields
         self.symbol_table = []
-        self.tokens = self.lex.tokens
+        self.tokens = self.remove_comments(self.lex.tokens)
         self.token_index = -1
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
@@ -1242,44 +1202,61 @@ class Compiler:
         self.make_symbols()
         
         #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.lex.tokens, self.token_index, self.symbol_table)
+        self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table)
+
+
+    def remove_comments(self, tokens):
+        new_tokens = []
+        in_comment = 0
+
+        for token in tokens:
+            if(token.value == "##"):
+                if(in_comment == 0):
+                    in_comment = 1
+                else:
+                    in_comment = 0
+
+            if(in_comment):
+                continue
+
+            new_tokens.append(token)
+
+        return new_tokens
 
 
     def token_init(self):
-        #initialyze current token
-        self.current_token = self.get_next_token()
-        if(self.current_token.value == "##"):
-            self.current_token = self.get_next_token()
-            while(self.current_token.value != "##"):
-                self.current_token = self.get_next_token() 
-            self.current_token = self.get_next_token()
+        if(len(self.tokens) == 0):
+            return
+
+        if(len(self.tokens) > 0):
+            self.current_token = self.tokens[0]
+            index = 0
+            return
+
+        if(len(self.tokens) > 1):
+            self.next_token = self.tokens[1]
+            index = 0
         
-        #initialyze current token
-        self.next_token = self.get_next_token()
-        if(self.next_token.value == "##"):
-            self.next_token = self.get_next_token()
-            while(self.next_token.value != "##"):
-                self.next_token = self.get_next_token() 
-            self.next_token = self.get_next_token()
         return
 
 
     def advance(self):
-        self.current_token= self.next_token
-        self.next_token = self.get_next_token()
-        if(self.next_token.value == "##"):
-            self.next_token = self.get_next_token()
-            while(self.next_token.value != "##"):
-                self.next_token = self.get_next_token() 
-            self.next_token = self.get_next_token()
+        self.token_index += 1
+        if(self.token_index + 1 ==  len(self.tokens)):
+            self.current_token = self.next_token
+            self.next_token = Token("NULL" , "", 0)
+            return
+        
+        if(self.token_index ==  len(self.tokens)):
+            self.current_token = Token("NULL" , "", 0)
+            return
+
+        self.current_token = self.next_token
+        self.next_token = self.tokens[self.token_index+1]
+
         return 
         
         
-    def get_next_token(self):
-        self.token_index+=1
-        if(self.token_index + 1 >= len(self.tokens)):
-            return Token("Null", "", 0)
-        return self.tokens[self.token_index] 
 
 
 
