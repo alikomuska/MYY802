@@ -796,28 +796,29 @@ class Int_Code_Generator:
             self.print_quads()
             print(self.current_token.value)
             
+
             ## while
-            if(self.current_token.value == "while"):
-                self.advance_token()
-                self.while_block()
-                return
-            
+        if(self.current_token.value == "while"):
+            self.advance_token()
+            self.while_block()
             return
+            
+        return
 
             ## print
-            if(self.current_token.value == "print"):
+        if(self.current_token.value == "print"):
                 self.genQuad("out", "", "", "")
                 return
 
 
             ## return
-            if(self.current_token.value == "return"):
+        if(self.current_token.value == "return"):
                 self.genQuad("ret", "", "", "")
                 return
 
 
             ## if
-            if(self.current_token.value == "if"):
+        if(self.current_token.value == "if"):
                 return
 
 
@@ -972,7 +973,7 @@ class Int_Code_Generator:
             index+=2
 
         return
-
+############### DEN TO TESTAREIS KAN EINIA TERMA PROXEIRO
 
     def while_block(self):
         self.condition()
@@ -1113,13 +1114,14 @@ class Int_Code_Generator:
         return
 
 
+
     def genQuad(self, operator, oper1, oper2, oper3):
         self.quads.append(Quad(self.label, operator, oper1, oper2, oper3))
         self.label+=1
         return
 
 
-    def nextQuad():
+    def nextQuad(self):
         return self.label
 
 
@@ -1128,7 +1130,7 @@ class Int_Code_Generator:
 
     
     def emptyList():
-        return
+        return 
 
     def makeList():
         return
