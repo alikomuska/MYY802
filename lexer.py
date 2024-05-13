@@ -930,7 +930,6 @@ class Int_Code_Generator:
 
     def if_block(self):
         self.advance_token()
-        return_label = self.nextQuad()
         backpatch_quad = self.condition()
         self.advance_token() 
         if(self.current_token.value == "#{"):
@@ -940,14 +939,11 @@ class Int_Code_Generator:
         else:
             self.code_block("", 0)
 
-        self.genQuad("jump", "", "", return_label)
-        print(self.current_token.value)
+        self.backpatch(backpatch_quad, self.nextQuad())
 
         while(self.current_token.value == "elif"):
-            self.advance_token()
             self.if_block()
 
-        self.backpatch(backpatch_quad, self.nextQuad())
         return
 
 
@@ -1002,7 +998,6 @@ class Int_Code_Generator:
                     self.assiment(assiment_var, expression)
             
                 if(multiple_lines == 0):
-                    print("exit")
                     return
 
             ## print
