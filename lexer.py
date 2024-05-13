@@ -757,8 +757,29 @@ class Int_Code_Generator:
         self.next_token = Token("NULL" , "NULL", 0)
         self.token_init()
         self.init_code_maker()
+        self.print_Quads_file(self.quads)
 
+    
+    
+    
+    
+    
+    def print_Quads_file(self, quads):
+        file_name="QUADS.txt"
+        with open(file_name,"w") as file: 
+            file.write("THE QUADS OF THE PROGRAMM\n")
+            
+            
+            for row in quads:
+                        
+                     file.write( str(row.label) + ": " + ", ".join([row.operator , str(row.operand1), str(row.operand2), str(row.operand3)]) + "\n")
 
+        print("TABLE WITH PROGRAMM QUADS  IS WRITTEN TO ", file_name)
+    
+    
+    
+
+    
     def init_code_maker(self):
         self.advance_token()
         while(self.current_token.value == "#int"):
