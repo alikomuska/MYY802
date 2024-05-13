@@ -914,7 +914,6 @@ class Int_Code_Generator:
     def add_oper(self, assiment_var, expression):
 
         if(len(expression) < 3):
-            print("ass", expression[0])
             self.genQuad(":=", expression[0], "",  assiment_var)
             return
 
@@ -929,8 +928,9 @@ class Int_Code_Generator:
 
 
     def if_block(self):
+        exit_jump_quads = []
         self.advance_token()
-        backpatch_quad = self.condition()
+        next_condition_jump = self.condition()
         self.advance_token() 
         if(self.current_token.value == "#{"):
             self.advance_token() 
@@ -939,10 +939,40 @@ class Int_Code_Generator:
         else:
             self.code_block("", 0)
 
-        self.backpatch(backpatch_quad, self.nextQuad())
+        exit_jump_quads.append(self.genQuad("jump", "", "", ""))
+        self.backpatch(next_condition_jump, self.nextQuad())
 
         while(self.current_token.value == "elif"):
-            self.if_block()
+            print("1else",self.current_token.value)
+            next_condition_jump = self.condition()
+            self.advance_token() 
+            if(self.current_token.value == "#{"):
+                self.advance_token()
+                print("else2",self.current_token.value)
+                self.code_block("#}", 1)
+                self.advance_token()
+            else:
+                print("else3",self.current_token.value)
+                self.code_block("", 0)
+            exit_jump_quads.append(self.genQuad("jump", "", "", ""))
+            self.backpatch(next_condition_jump, self.nextQuad())
+
+
+        if(self.current_token.value == "else"):
+            self.advance_token()
+            self.advance_token()
+            print("else",self.current_token.value)
+            if(self.current_token.value == "#{"):
+                self.advance_token()
+                self.code_block("#}", 1)
+                self.advance_token()
+            else:
+                self.code_block("", 0)
+
+
+        for quad in exit_jump_quads:
+            self.backpatch(quad, self.nextQuad())
+
 
         return
 
@@ -1236,8 +1266,9 @@ class Compiler:
         self.current_token = Token("NULL", "", 0)
         self.next_token = Token("NULL" , "", 0)
         self.token_init()
+        print(self.current_token.line)
         self.make_symbols()
-        
+
         #Int_Code_Genarator
         self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table)
 
@@ -1266,12 +1297,13 @@ class Compiler:
             return
 
         if(len(self.tokens) > 0):
-            self.current_token = self.tokens[0]
-            return
+            self.current_token = self.tokens[self.token_index]
 
         if(len(self.tokens) > 1):
-            self.next_token = self.tokens[1]
+            self.next_token = self.tokens[self.token_index+1]
         
+        self.index = 0
+       
         return
 
 
@@ -1279,23 +1311,29 @@ class Compiler:
         self.token_index += 1
         if(self.token_index + 1 ==  len(self.tokens)):
             self.current_token = self.next_token
-            self.next_token = Token("NULL" , "", 0)
+            self.next_token = Token("NULL" , "NULL", 0)
             return
         
         if(self.token_index ==  len(self.tokens)):
-            self.current_token = Token("NULL" , "", 0)
+            self.current_token = Token("NULL", "NULL", 0)
             return
 
         self.current_token = self.next_token
+
+        if(self.token_index - 1 ==  len(self.tokens)):
+            self.next_token = Token("NULL", "NULL", 0)
+            return
         self.next_token = self.tokens[self.token_index+1]
 
         return 
+ 
         
-        
-
 
 
     def make_symbols(self):
+        print("make_symbol")
+        print(self.current_token.line)
+        
         if(self.current_token.value == "def" and self.next_token.value == "main"):
             return
 
