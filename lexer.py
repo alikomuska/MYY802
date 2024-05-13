@@ -760,37 +760,26 @@ class Int_Code_Generator:
         self.print_Quads_file(self.quads)
 
     
-    
-    
-    
-    
     def print_Quads_file(self, quads):
         file_name="QUADS.txt"
         with open(file_name,"w") as file: 
             file.write("THE QUADS OF THE PROGRAMM\n")
-            
-            
             for row in quads:
-                        
                      file.write( str(row.label) + ": " + ", ".join([row.operator , str(row.operand1), str(row.operand2), str(row.operand3)]) + "\n")
 
         print("TABLE WITH PROGRAMM QUADS  IS WRITTEN TO ", file_name)
     
     
-    
-
-    
     def init_code_maker(self):
-        self.advance_token()
-        while(self.current_token.value == "#int"):
-            print("start" , self.current_token.value)
-            self.advance_token()
-            self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
-            #why does the previous line work?
-            #maybe I'll put this line into the compliler
-            self.advance_token()
+        print(self.current_token.value)
+    
+        if(self.current_token.value == "#int"):
+            self.variables_loader()
 
-        self.advance_token()
+        if(self.current_token.value == "def"):
+            self.functions_loader()
+
+        print(self.current_token.value)
         #fuc declaration missing
         self.code_block("NULL", 1)
         self.genQuad("halt", "", "", "")
@@ -805,6 +794,7 @@ class Int_Code_Generator:
 
         #calculate functions
         expression = self.calc_functions(expression)
+        print("1 expression", expression)
 
         #remove parenthesis
         if("(" in expression):
@@ -852,8 +842,8 @@ class Int_Code_Generator:
                     else:
                         break
 
-                #call function inter code maker
-                index+=2
+                    #call function inter code maker
+                    index+=2
             else:
                 new_expression.append(expression[index])
                 index+=1
@@ -1214,6 +1204,60 @@ class Int_Code_Generator:
 
         return
 
+    def variables_loader(self):
+        self.advance_token()
+        self.symbol_table.append(Symbol(self.current_token.value, "variable", None, None))
+
+        if(self.next_token.value == "#int"):
+            self.advance_token()
+            self.variables_loader()
+        self.advance_token()
+        return
+
+
+    def functions_loader(self):
+        function_tokens = []
+        function_par = []
+        bracket_count = 1
+
+        self.advance_token()
+        function_name = self.current_token.value
+        self.advance_token()
+        self.advance_token()
+
+        while(self.current_token.value != ")"):
+            function_par.append(self.current_token.value)
+            self.advance_token()
+            if(self.current_token.value == ","):
+                self.advance()
+    
+        self.advance_token()
+        self.advance_token()
+
+        while (self.current_token.value != "#}" or bracket_count != 0):
+            function_tokens.append(self.current_token)
+            self.advance_token()
+
+            if(self.current_token.value == "#{"):
+                bracket_count+=1
+
+            if(self.current_token.value == "#}"):
+                bracket_count-=1
+            
+
+        function_tokens.append(self.current_token)
+        self.symbol_table.append(Symbol(function_name, "function", function_tokens, function_par))
+
+        self.advance_token()
+
+        if(self.current_token.value == "def"):
+            self.functions_loader()
+
+        if(self.current_token.value == "#def"):
+            return
+        
+        return
+
 
     def token_init(self):
         if(len(self.tokens) == 0):
@@ -1283,13 +1327,11 @@ class Compiler:
         #Fields
         self.symbol_table = []
         self.tokens = self.remove_comments(self.lex.tokens)
-        self.token_index = -1
-        self.current_token = Token("NULL", "", 0)
-        self.next_token = Token("NULL" , "", 0)
-        self.token_init()
-        print(self.current_token.line)
+        self.token_index = 0
+        self.current_token = self.tokens[0]
+        self.next_token = self.tokens[1]
         self.make_symbols()
-
+    
         #Int_Code_Genarator
         self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table)
 
@@ -1304,6 +1346,7 @@ class Compiler:
                     in_comment = 1
                 else:
                     in_comment = 0
+                continue
 
             if(in_comment):
                 continue
@@ -1313,38 +1356,20 @@ class Compiler:
         return new_tokens
 
 
-    def token_init(self):
-        if(len(self.tokens) == 0):
-            return
-
-        if(len(self.tokens) > 0):
-            self.current_token = self.tokens[self.token_index]
-
-        if(len(self.tokens) > 1):
-            self.next_token = self.tokens[self.token_index+1]
-        
-        self.index = 0
-       
-        return
-
-
     def advance(self):
         self.token_index += 1
-        if(self.token_index + 1 ==  len(self.tokens)):
+        if(self.token_index + 1  <  len(self.tokens)):
             self.current_token = self.next_token
-            self.next_token = Token("NULL" , "NULL", 0)
+            self.next_token = self.tokens[self.token_index+1]
             return
         
         if(self.token_index ==  len(self.tokens)):
-            self.current_token = Token("NULL", "NULL", 0)
-            return
-
-        self.current_token = self.next_token
-
-        if(self.token_index - 1 ==  len(self.tokens)):
+            self.current_token = self.next_token
             self.next_token = Token("NULL", "NULL", 0)
             return
-        self.next_token = self.tokens[self.token_index+1]
+
+        self.current_token = Token("NULL", "NULL", 0)
+        self.next_token = Token("NULL", "NULL", 0)
 
         return 
  
@@ -1352,15 +1377,12 @@ class Compiler:
 
 
     def make_symbols(self):
-        print("make_symbol")
-        print(self.current_token.line)
         
         if(self.current_token.value == "def" and self.next_token.value == "main"):
             return
 
         if(self.current_token.value == "#int"):
             self.variables_loader()
-            self.advance()
 
         if(self.current_token.value == "def"):
             self.functions_loader()
@@ -1377,6 +1399,7 @@ class Compiler:
             self.advance()
             self.variables_loader()
 
+        self.advance()
         return
 
 
@@ -1414,12 +1437,10 @@ class Compiler:
         self.symbol_table.append(Symbol(function_name, "function", function_tokens, function_par))
 
         self.advance()
-        if(self.current_token.value == "#def"):
-            return
-        
+
         if(self.current_token.value == "def"):
             self.functions_loader()
-
+        
         return
 
 
