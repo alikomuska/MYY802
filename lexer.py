@@ -747,7 +747,9 @@ class Parser:
 class Int_Code_Generator:
     
     def __init__(self, sourceCode, tokens, index, symbol_table):
+        self.symbol_tables = []
         self.symbol_table = symbol_table
+        self.symbol_tables.append(symbol_table)
         self.tokens = tokens
         self.quads = []
         self.token_index = 0
@@ -756,8 +758,10 @@ class Int_Code_Generator:
         self.current_token = Token("NULL", "NULL", 0)
         self.next_token = Token("NULL" , "NULL", 0)
         self.token_init()
-        self.init_code_maker()
+        self.init_code_maker("NULL")
         self.print_Quads_file(self.quads)
+        print("QUADS")
+        self.print_quads()
 
     
     def print_Quads_file(self, quads):
@@ -770,19 +774,24 @@ class Int_Code_Generator:
         print("TABLE WITH PROGRAMM QUADS  IS WRITTEN TO ", file_name)
     
     
-    def init_code_maker(self):
+    def init_code_maker(self, end_char):
     
+
         if(self.current_token.value == "#int"):
             self.variables_loader()
+
+
+        while(self.current_token.value == "global"):
+            self.advance_token()
+            self.advance_token()
+
 
         if(self.current_token.value == "def"):
             self.functions_loader()
 
         #fuc declaration missing
-        self.code_block("NULL", 1)
+        self.code_block(end_char, 1)
         self.genQuad("halt", "", "", "")
-        print("QUADS")
-        self.print_quads()
 
 
         return
@@ -790,7 +799,6 @@ class Int_Code_Generator:
 
     def assiment(self, assiment_var, expression):
 
-        print(expression)
         #calculate functions
         expression = self.calc_functions(expression)
         print("1 expression", expression)
@@ -816,10 +824,12 @@ class Int_Code_Generator:
 
         while index < len(expression):
             if(expression[index] in op or expression[index] == "(" or expression[index] == ")"):
+                print(expression[index])
                 new_expression.append(expression[index])
                 index+=1
     
             elif(index+1 < len(expression) and  expression[index+1] == "("):
+                print(expression[index])
                 if(self.inSymbolTable(expression[index]) == False):
                     print("Error", expression[index], "not declarted")
                     exit()
@@ -857,6 +867,28 @@ class Int_Code_Generator:
 
     def function_call(self, function_name, parameters):
         new_parameters = [] 
+        index_buf = self.token_index
+        tokens_buf = self.tokens
+        current_token_buf = self.current_token
+        next_token_buf = self.next_token
+        self.token_index = 1
+
+        for sym in self.symbol_table:
+            if(sym.name == function_name):
+                self.tokens = sym.func_code
+                self.current_token = self.tokens[1]
+                self.next_token = self.tokens[2]
+
+
+    
+        print(self.current_token.value)
+        self.init_code_maker("#}")
+
+        self.token_index = index_buf
+        self.tokens = tokens_buf
+        self.current_token = current_token_buf
+        self.next_token = next_token_buf
+        return
 
 
     def inSymbolTable(self, token):
@@ -958,13 +990,17 @@ class Int_Code_Generator:
         else:
             self.code_block("", 0)
 
+        print(next_condition_jump)
         exit_jump_quads.append(self.genQuad("jump", "", "", ""))
         self.backpatch(next_condition_jump, self.nextQuad())
 
+
+        print("token",self.current_token.value)
         while(self.current_token.value == "elif"):
-            print("1else",self.current_token.value)
+            self.advance_token() 
             next_condition_jump = self.condition()
             self.advance_token() 
+            print("1else",self.current_token.value)
             if(self.current_token.value == "#{"):
                 self.advance_token()
                 print("else2",self.current_token.value)
@@ -1091,6 +1127,7 @@ class Int_Code_Generator:
         rel_op = ""
         parenthesis_counter = 0
 
+        print("con", self.current_token.value)
         while(self.current_token.value != ":"):
             if(self.current_token.value == "or" or self.current_token.value == "and"):
                 if(len(term) == 1):
@@ -1286,21 +1323,18 @@ class Int_Code_Generator:
 
     def advance_token(self):
         self.token_index += 1
-        if(self.token_index + 1 ==  len(self.tokens)):
-            self.current_token = self.next_token
-            self.next_token = Token("NULL" , "NULL", 0)
-            return
         
-        if(self.token_index ==  len(self.tokens)):
-            self.current_token = Token("NULL", "NULL", 0)
+        if(self.token_index + 1 < len(self.tokens)):
+            self.current_token = self.next_token
+            self.next_token = self.tokens[self.token_index+1]
             return
-
-        self.current_token = self.next_token
-
-        if(self.token_index - 1 ==  len(self.tokens)):
+        elif(self.token_index + 1 == len(self.tokens)):
+            self.current_token = self.tokens[self.token_index]
             self.next_token = Token("NULL", "NULL", 0)
             return
-        self.next_token = self.tokens[self.token_index+1]
+
+        self.current_token = Token("NULL", "NULL", 0)
+        self.next_token = Token("NULL", "NULL", 0)
 
         return 
 
@@ -1321,6 +1355,13 @@ class Quad:
         self.operand1 = operand1
         self.operand2 = operand2
         self.operand3 = operand3
+
+
+class SymbolTable:
+
+    def __init__(self, block_name):
+        return
+
 
 
 class Compiler:
@@ -1372,7 +1413,7 @@ class Compiler:
             self.next_token = self.tokens[self.token_index+1]
             return
         
-        if(self.token_index ==  len(self.tokens)):
+        if(self.token_index + 1 ==  len(self.tokens)):
             self.current_token = self.next_token
             self.next_token = Token("NULL", "NULL", 0)
             return
