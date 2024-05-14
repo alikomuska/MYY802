@@ -764,14 +764,13 @@ class Int_Code_Generator:
         file_name="QUADS.txt"
         with open(file_name,"w") as file: 
             file.write("THE QUADS OF THE PROGRAMM\n")
-            for row in quads:
-                     file.write( str(row.label) + ": " + ", ".join([row.operator , str(row.operand1), str(row.operand2), str(row.operand3)]) + "\n")
+            for quad in quads:
+                     file.write( str(quad.label) + ": " + ", ".join([quad.operator , str(quad.operand1), str(quad.operand2), str(quad.operand3)]) + "\n")
 
         print("TABLE WITH PROGRAMM QUADS  IS WRITTEN TO ", file_name)
     
     
     def init_code_maker(self):
-        print(self.current_token.value)
     
         if(self.current_token.value == "#int"):
             self.variables_loader()
@@ -779,7 +778,6 @@ class Int_Code_Generator:
         if(self.current_token.value == "def"):
             self.functions_loader()
 
-        print(self.current_token.value)
         #fuc declaration missing
         self.code_block("NULL", 1)
         self.genQuad("halt", "", "", "")
@@ -792,6 +790,7 @@ class Int_Code_Generator:
 
     def assiment(self, assiment_var, expression):
 
+        print(expression)
         #calculate functions
         expression = self.calc_functions(expression)
         print("1 expression", expression)
@@ -816,7 +815,7 @@ class Int_Code_Generator:
         index = 0
 
         while index < len(expression):
-            if(expression[index] in op):
+            if(expression[index] in op or expression[index] == "(" or expression[index] == ")"):
                 new_expression.append(expression[index])
                 index+=1
     
@@ -825,30 +824,39 @@ class Int_Code_Generator:
                     print("Error", expression[index], "not declarted")
                     exit()
 
+                function_name = expression[index]
                 temp = self.return_temp_var()
                 new_expression.append(temp)
                 parameters = []
                 index+=2
+
                 if(expression[index] == ")"):
                     index+=1
                     continue
-    
 
-                while(expression[index] != ")"):
+                parenthesis_count = 1
+                while(expression[index] != ")" or parenthesis_count !=0):
                     parameters.append(expression[index])
-                    
-                    if(expression[index+1] == ","):
-                        index+=2
-                    else:
-                        break
+                    index+=1
+                    if(expression[index] == ")"):
+                        parenthesis_count -=1
+                    elif(expression[index] == "("):
+                        parenthesis_count +=1
+                index+=1
+                self.genQuad("begin_block", function_name, "", "")
+                self.function_call(function_name, parameters)
+                self.genQuad("halt", "", "", "")
+                self.genQuad("end_block", function_name, "", "")
 
-                    #call function inter code maker
-                    index+=2
             else:
                 new_expression.append(expression[index])
                 index+=1
 
         return new_expression
+
+
+    def function_call(self, function_name, parameters):
+        new_parameters = [] 
 
 
     def inSymbolTable(self, token):
@@ -1200,7 +1208,8 @@ class Int_Code_Generator:
                 print(str(quad.label), "jump", str(quad.operand3))
             elif(quad.operator == "halt"):
                 print(str(quad.label), "halt")
-
+            elif(quad.operator == "begin_block" or quad.operator == "end_block"):
+                print(str(quad.label), quad.operator, quad.operand1)
 
         return
 
