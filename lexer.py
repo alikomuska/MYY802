@@ -762,16 +762,30 @@ class Int_Code_Generator:
         self.print_Quads_file(self.quads)
         print("QUADS")
         self.print_quads()
+        self.print_symbol_table()
 
     
+
+    def print_symbol_table(self):
+        file_name="symbol_table.sym"
+        with open(file_name,"w") as file: 
+            file.write("SYMBOL TABLE\n")
+            for sym in self.symbol_table:
+                file.write("Symbol:" +  sym.name + " Type:" + sym.symbol_type + "\n")
+
+        print("SYMBOL TABLE WRITTEN TO", file_name)
+        return
+
+
     def print_Quads_file(self, quads):
-        file_name="QUADS.txt"
+        file_name="quads.int"
         with open(file_name,"w") as file: 
             file.write("THE QUADS OF THE PROGRAMM\n")
             for quad in quads:
                      file.write( str(quad.label) + ": " + ", ".join([quad.operator , str(quad.operand1), str(quad.operand2), str(quad.operand3)]) + "\n")
 
         print("TABLE WITH PROGRAMM QUADS  IS WRITTEN TO ", file_name)
+        return
     
     
     def init_code_maker(self, end_char):
@@ -824,12 +838,10 @@ class Int_Code_Generator:
 
         while index < len(expression):
             if(expression[index] in op or expression[index] == "(" or expression[index] == ")"):
-                print(expression[index])
                 new_expression.append(expression[index])
                 index+=1
     
             elif(index+1 < len(expression) and  expression[index+1] == "("):
-                print(expression[index])
                 if(self.inSymbolTable(expression[index]) == False):
                     print("Error", expression[index], "not declarted")
                     exit()
@@ -881,7 +893,6 @@ class Int_Code_Generator:
 
 
     
-        print(self.current_token.value)
         self.init_code_maker("#}")
 
         self.token_index = index_buf
@@ -990,24 +1001,19 @@ class Int_Code_Generator:
         else:
             self.code_block("", 0)
 
-        print(next_condition_jump)
         exit_jump_quads.append(self.genQuad("jump", "", "", ""))
         self.backpatch(next_condition_jump, self.nextQuad())
 
 
-        print("token",self.current_token.value)
         while(self.current_token.value == "elif"):
             self.advance_token() 
             next_condition_jump = self.condition()
             self.advance_token() 
-            print("1else",self.current_token.value)
             if(self.current_token.value == "#{"):
                 self.advance_token()
-                print("else2",self.current_token.value)
                 self.code_block("#}", 1)
                 self.advance_token()
             else:
-                print("else3",self.current_token.value)
                 self.code_block("", 0)
             exit_jump_quads.append(self.genQuad("jump", "", "", ""))
             self.backpatch(next_condition_jump, self.nextQuad())
@@ -1016,7 +1022,6 @@ class Int_Code_Generator:
         if(self.current_token.value == "else"):
             self.advance_token()
             self.advance_token()
-            print("else",self.current_token.value)
             if(self.current_token.value == "#{"):
                 self.advance_token()
                 self.code_block("#}", 1)
@@ -1027,7 +1032,7 @@ class Int_Code_Generator:
 
         for quad in exit_jump_quads:
             self.backpatch(quad, self.nextQuad())
-
+        print("con", self.current_token.value)
 
         return
 
@@ -1127,7 +1132,6 @@ class Int_Code_Generator:
         rel_op = ""
         parenthesis_counter = 0
 
-        print("con", self.current_token.value)
         while(self.current_token.value != ":"):
             if(self.current_token.value == "or" or self.current_token.value == "and"):
                 if(len(term) == 1):
@@ -1165,11 +1169,13 @@ class Int_Code_Generator:
 
         if(len(term) == 1):
             new_condition.append(term[0])
+            print("con", new_condition)
             return self.bool_quad(new_condition)
 
         temp = self.return_temp_var()
         self.assiment(temp, term)
         new_condition.append(temp)
+        print("con", new_condition)
         return self.bool_quad(new_condition)
 
 
@@ -1183,6 +1189,7 @@ class Int_Code_Generator:
 
         #multiple boolean variables (to be done)
         while(index < len(condition)):
+            
             return    
 
         return
@@ -1225,7 +1232,7 @@ class Int_Code_Generator:
         
         
     def print_quads(self):
-        assiment = ['+', '-', '*', '//']
+        assiment = ['+', '-', '*', '//', '%']
         rel_op = [">", "<", ">=", "<=", "==", "!="]
 
         for quad in self.quads:
@@ -1275,7 +1282,7 @@ class Int_Code_Generator:
             function_par.append(self.current_token.value)
             self.advance_token()
             if(self.current_token.value == ","):
-                self.advance()
+                self.advance_token()
     
         self.advance_token()
         self.advance_token()
