@@ -1,3 +1,5 @@
+#Aliko Muska 4427
+#Ramo Zanaj 2697
 import sys
 
 
@@ -992,7 +994,7 @@ class Int_Code_Generator:
     def if_block(self):
         exit_jump_quads = []
         self.advance_token()
-        next_condition_jump = self.condition()
+        backpatch_quad = self.condition()
         self.advance_token() 
         if(self.current_token.value == "#{"):
             self.advance_token() 
@@ -1002,12 +1004,14 @@ class Int_Code_Generator:
             self.code_block("", 0)
 
         exit_jump_quads.append(self.genQuad("jump", "", "", ""))
-        self.backpatch(next_condition_jump, self.nextQuad())
+
+        for quad in backpatch_quad:
+            self.backpatch(quad, self.nextQuad())
 
 
         while(self.current_token.value == "elif"):
             self.advance_token() 
-            next_condition_jump = self.condition()
+            backpatch_quad = self.condition()
             self.advance_token() 
             if(self.current_token.value == "#{"):
                 self.advance_token()
@@ -1016,7 +1020,9 @@ class Int_Code_Generator:
             else:
                 self.code_block("", 0)
             exit_jump_quads.append(self.genQuad("jump", "", "", ""))
-            self.backpatch(next_condition_jump, self.nextQuad())
+
+            for quad in backpatch_quad:
+                self.backpatch(quad, self.nextQuad())
 
 
         if(self.current_token.value == "else"):
@@ -1050,7 +1056,8 @@ class Int_Code_Generator:
             self.code_block("", 0)
     
         self.genQuad("jump", "", "", return_label)
-        self.backpatch(backpatch_quad, self.nextQuad())
+        for quad in backpatch_quad:
+            self.backpatch(quad, self.nextQuad())
         return
 
 
@@ -1169,30 +1176,51 @@ class Int_Code_Generator:
 
         if(len(term) == 1):
             new_condition.append(term[0])
-            print("con", new_condition)
             return self.bool_quad(new_condition)
 
         temp = self.return_temp_var()
         self.assiment(temp, term)
         new_condition.append(temp)
-        print("con", new_condition)
         return self.bool_quad(new_condition)
 
 
     def bool_quad(self, condition):
         index = 0
+        true_quad = []
+        false_quad = []
 
-        if(len(condition) == 3):
-            self.genQuad(condition[1], condition[0], condition[2], self.nextQuad() + 2)
-            return self.genQuad("jump", "", "", "")
+        print("bool", condition)
+        true_quad.append(self.genQuad(condition[1], condition[0], condition[2], ""))
+        false_quad.append(self.genQuad("jump", "", "", ""))
+        index +=3
             
 
         #multiple boolean variables (to be done)
         while(index < len(condition)):
-            
-            return    
+            if(condition[index] == "and"):
+                print("and")
+                #true
+                for quad in true_quad:
+                    self.backpatch(quad, self.nextQuad())
+                true_quad = []
+                true_quad.append(self.genQuad(condition[index + 2], condition[index + 1], condition[index + 3], ""))
+                false_quad.append(self.genQuad("jump", "", "", ""))
+                #false
 
-        return
+            elif(condition[index] == "or"):
+                print("or")
+                for quad in false_quad:
+                    self.backpatch(quad, self.nextQuad())
+                false_quad = []
+                true_quad.append(self.genQuad(condition[index + 2], condition[index + 1], condition[index + 3], ""))
+                false_quad.append(self.genQuad("jump", "", "", ""))
+
+            index +=4
+            
+        for quad in true_quad:
+            self.backpatch(quad, self.nextQuad())
+    
+        return false_quad
 
 
 
