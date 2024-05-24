@@ -765,9 +765,11 @@ class Int_Code_Generator:
         print("QUADS")
         self.print_quads()
         self.print_symbol_table()
-        return self.quads
 
-    
+   
+
+    def return_quads(self):
+       return self.quads
 
     def print_symbol_table(self):
         file_name="symbol_table.sym"
@@ -1404,10 +1406,50 @@ class FinalCode:
     def __init__(self, quads, symbolTable):
         self.quads = quads
         self.symbolTable = symbolTable
-        return
+        self.final_code_gen()
+        self.offeset_table = []
+        self.registers_table = []
+        self.registers = Registers()
+        self.sp = 0
+        self.sf = 0
 
     
-    def
+    def final_code_gen(self):
+        return
+
+
+    def return_available_reg(self):
+        return
+
+
+
+class Registers:
+    
+    def __init__(self):
+        self.registers = []
+        for i in range(0,8):
+            self.registers.append(Register("t" + str(i)))
+        
+        
+    def return_available_reg(self):
+        return
+
+
+    def register_storing(self, var):
+        return
+    
+
+    def make_available_reg(self, register_name):
+        return
+
+
+
+class Register:
+
+    def __init__(self, name):
+        self.name = name
+        self.stores = ""
+        self.available = True
 
 
 
@@ -1432,7 +1474,10 @@ class Compiler:
     
         #Int_Code_Genarator
         self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table)
+        self.quads = self.int_generator.return_quads()
 
+        #Final Code Maker
+        self.final_code_maker = FinalCode(self.quads, self.tokens)
 
     def remove_comments(self, tokens):
         new_tokens = []
