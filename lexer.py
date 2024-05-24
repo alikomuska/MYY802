@@ -765,6 +765,7 @@ class Int_Code_Generator:
         print("QUADS")
         self.print_quads()
         self.print_symbol_table()
+        return self.quads
 
     
 
@@ -1396,6 +1397,18 @@ class SymbolTable:
 
     def __init__(self, block_name):
         return
+
+
+class FinalCode:
+
+    def __init__(self, quads, symbolTable):
+        self.quads = quads
+        self.symbolTable = symbolTable
+        return
+
+    
+    def
+
 
 
 
