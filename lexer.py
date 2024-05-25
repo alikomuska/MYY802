@@ -799,7 +799,7 @@ class Int_Code_Generator:
 
 
         if(self.current_token.value == "#int"):
-            print("here")
+            
             self.variables_loader()
 
 
@@ -1402,23 +1402,49 @@ class SymbolTable:
 class FinalCode:
 
     def __init__(self, quads, symbolTable):
-        self.quads = quads
+        self.registers = Registers() 
+        self.quads = quads 
+  
         self.symbolTable = symbolTable
         self.final_code_gen()
         self.offeset_table = []
-        self.registers = Registers()
+       
         self.sp = 0
         self.sf = 0
 
     
     def final_code_gen(self):
-
+        final_code =[]
 
         for quad in self.quads:
-            if(quad.operator in ["+"]):
+            if(quad.operator in ["+","-","*","//","%"]):
+                final_code.append(self.assembly_transform_operation(quad))
                 return
 
         return
+
+    def assembly_transform_operation(self,quad):
+        assembly_code=''
+        register1=self.registers.register_storing(quad.operand2)
+        register2=self.registers.register_storing(quad.operand3)
+        register3=self.registers.return_available_reg()
+        if register1!=0 and register2!=0:
+            if self.quad.operator=="+":
+                assembly_code="add"+register3+","+register1+","+register2
+                return assembly_code
+            if self.quad.operator=="-":
+                assembly_code="sub"+register3+","+register1+","+register2
+            
+            if self.quad.operator=="*":
+                assembly_code="mul"+register3+","+register1+","+register2
+            if self.quad.operator=="//":
+                assembly_code="div"+register3+","+register1+","+register2
+            if self.quad.operator=="%":
+                assembly_code="mod"+register3+","+register1+","+register2       
+
+        return assembly_code
+
+
 
 
     def return_available_reg(self):
@@ -1437,8 +1463,10 @@ class Registers:
     def return_available_reg(self):
         for reg in  self.registers:
             if reg.avaliable==True:
+                reg.avaliable=False
                 return reg.name
-
+            
+        return
 
         
 
@@ -1447,7 +1475,7 @@ class Registers:
         for reg in self.registers:
             if(reg.stores == var):
                 return reg.name
-        return
+        return 0 
     
 
     def make_available_reg(self, register_name):
@@ -1464,7 +1492,7 @@ class Register:
     def __init__(self, name):
         self.name = name
         self.stores = ""
-        self.avalaible = True
+        self.avaliable = True
 
 
 
