@@ -753,6 +753,7 @@ class Int_Code_Generator:
         self.symbol_table = symbol_table
         self.symbol_tables.append(symbol_table)
         self.tokens = tokens
+        self.int_var = []
         self.quads = []
         self.token_index = 0
         self.label = 0
@@ -796,8 +797,10 @@ class Int_Code_Generator:
     def init_code_maker(self, end_char):
     
 
+
         if(self.current_token.value == "#int"):
             self.variables_loader()
+
 
 
         while(self.current_token.value == "global"):
@@ -1041,7 +1044,6 @@ class Int_Code_Generator:
 
         for quad in exit_jump_quads:
             self.backpatch(quad, self.nextQuad())
-        print("con", self.current_token.value)
 
         return
 
@@ -1192,7 +1194,6 @@ class Int_Code_Generator:
         true_quad = []
         false_quad = []
 
-        print("bool", condition)
         true_quad.append(self.genQuad(condition[1], condition[0], condition[2], ""))
         false_quad.append(self.genQuad("jump", "", "", ""))
         index +=3
@@ -1408,13 +1409,18 @@ class FinalCode:
         self.symbolTable = symbolTable
         self.final_code_gen()
         self.offeset_table = []
-        self.registers_table = []
         self.registers = Registers()
         self.sp = 0
         self.sf = 0
 
     
     def final_code_gen(self):
+
+
+        for quad in self.quads:
+            if(quad.operator in ["+"]):
+                return
+
         return
 
 
@@ -1450,7 +1456,6 @@ class Register:
         self.name = name
         self.stores = ""
         self.available = True
-
 
 
 
