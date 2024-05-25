@@ -798,7 +798,6 @@ class Int_Code_Generator:
     
     def init_code_maker(self, end_char):
     
-<<<<<<< HEAD
 
 
         if(self.current_token.value == "#int"):
@@ -806,9 +805,6 @@ class Int_Code_Generator:
             self.variables_loader()
 
 
-=======
-        self.variables_loader()
->>>>>>> c244ec44eb6f97f97a808214f53cfccec0a2aa5b
 
         while(self.current_token.value == "global"):
             self.advance_token()
@@ -1411,7 +1407,6 @@ class SymbolTable:
 
 class FinalCode:
 
-<<<<<<< HEAD
     def __init__(self, quads, symbolTable):
         self.registers = Registers() 
         self.quads = quads 
@@ -1420,15 +1415,6 @@ class FinalCode:
         self.final_code_gen()
         self.offeset_table = []
        
-=======
-
-    def __init__(self, quads, symbolTable, int_var):
-        self.quads = quads
-        self.symbolTable = symbolTable
-        self.int_var = int_var
-        self.offset_table = []
-        self.registers = Registers()
->>>>>>> c244ec44eb6f97f97a808214f53cfccec0a2aa5b
         self.sp = 0
         self.sf = 0
         self.offset = 0
@@ -1436,10 +1422,7 @@ class FinalCode:
 
     
     def final_code_gen(self):
-<<<<<<< HEAD
-        final_code =[]
-=======
-        
+        final_code=[]
         for var in self.int_var:
             self.offset_table.append([var, self.offset])
             self.offset -= 1
@@ -1447,7 +1430,6 @@ class FinalCode:
     
         print(self.offset_table)
 
->>>>>>> c244ec44eb6f97f97a808214f53cfccec0a2aa5b
 
         for quad in self.quads:
             if(quad.operator in ["+","-","*","//","%"]):
