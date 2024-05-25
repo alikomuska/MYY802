@@ -798,13 +798,7 @@ class Int_Code_Generator:
     
     def init_code_maker(self, end_char):
     
-
-
-        if(self.current_token.value == "#int"):
-            
-            self.variables_loader()
-
-
+        self.variables_loader()
 
         while(self.current_token.value == "global"):
             self.advance_token()
@@ -1422,7 +1416,10 @@ class FinalCode:
 
     
     def final_code_gen(self):
-        final_code=[]
+
+        final_code =[]
+
+        
         for var in self.int_var:
             self.offset_table.append([var, self.offset])
             self.offset -= 1
