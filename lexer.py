@@ -1435,7 +1435,12 @@ class Registers:
         
         
     def return_available_reg(self):
-        return
+        for reg in  self.registers:
+            if reg.avaliable==True:
+                return reg.name
+
+
+        
 
 
     def register_storing(self, var):
@@ -1459,7 +1464,7 @@ class Register:
     def __init__(self, name):
         self.name = name
         self.stores = ""
-        self.available = True
+        self.avalaible = True
 
 
 
