@@ -799,6 +799,7 @@ class Int_Code_Generator:
 
 
         if(self.current_token.value == "#int"):
+            print("here")
             self.variables_loader()
 
 
@@ -823,12 +824,10 @@ class Int_Code_Generator:
 
         #calculate functions
         expression = self.calc_functions(expression)
-        print("1 expression", expression)
 
         #remove parenthesis
         if("(" in expression):
             expression = self.parenthesis(expression)        
-            print("2 expression", expression)
 
         #do the mult
         expression = self.mult_oper(expression)
@@ -1202,7 +1201,6 @@ class Int_Code_Generator:
         #multiple boolean variables (to be done)
         while(index < len(condition)):
             if(condition[index] == "and"):
-                print("and")
                 #true
                 for quad in true_quad:
                     self.backpatch(quad, self.nextQuad())
@@ -1212,7 +1210,6 @@ class Int_Code_Generator:
                 #false
 
             elif(condition[index] == "or"):
-                print("or")
                 for quad in false_quad:
                     self.backpatch(quad, self.nextQuad())
                 false_quad = []
@@ -1442,10 +1439,17 @@ class Registers:
 
 
     def register_storing(self, var):
+        for reg in self.registers:
+            if(reg.stores == var):
+                return reg.name
         return
     
 
     def make_available_reg(self, register_name):
+        for reg in self.registers:
+            if(reg.name == register_name):
+                reg.available = True
+                return
         return
 
 
