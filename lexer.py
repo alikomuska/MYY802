@@ -1401,13 +1401,13 @@ class SymbolTable:
 
 class FinalCode:
 
-    def __init__(self, quads, symbolTable, int_var):
+    def __init__(self, quads, symbolTable,int_var):
+        self.registers = Registers()
         self.quads = quads
         self.symbolTable = symbolTable
         self.int_var = int_var
         self.offset_table = []
-        self.final_code = []
-        self.registers = Registers()
+        self.final_code=[]
         self.sp = 0
         self.sf = 0
         self.offset = 0
@@ -1415,10 +1415,13 @@ class FinalCode:
 
     
     def final_code_gen(self):
+
+        
+
         
         for var in self.int_var:
             self.offset_table.append([var, self.offset])
-            self.offset -= 4
+            self.offset -=4
             
 
         for quad in self.quads:
@@ -1436,8 +1439,54 @@ class FinalCode:
 
 
         print(self.final_code)
+            if(quad.operator in ["+","-","*","//","%"]):
+                self.assembly_transform_operation(quad)
+                return
+            if(quad.operator in ["!=", "<", ">","==", "<=", ">="]):
+               self.assembly_transform_condition(quad)
+            if(quad.operator=="in"):
+                self.assembly_transform_input(quad)
 
         return
+    
+    def assemnly_transform_input(self,quad):
+        register1=self.registers.return_available_reg
+        self.final_code.append("li"+register1+","+"5")
+        self.final_code.append("ecall")
+        self.registers.make_available_reg
+        return 
+
+    
+    def assembly_transform_condition(self,quad):
+        assembly_code=''
+        register1=self.registers.register_storing(quad.operand1)
+        register2=self.registers.register_storing(quad.operand2)
+        if register1!=0 and register2!=0:
+            if self.quad.operator=="!=":
+                assembly_code="bne"+register1+","+register2+","+quad.operand3
+                self.final_code.appemd(assembly_code)
+            if self.quad.operator=="==":
+                assembly_code="beq"+register1+","+register2+","+quad.operand3
+                self.final_code.appennd(assembly_code)
+            if self.quad.operator=="<":
+                assembly_code="blt"+register1+","+register2+","+quad.operand3
+                self.final_code.append(assembly_code)
+            if self.quad.operator==">":
+                assembly_code="bgt"+register1+","+register2+","+quad.operand3
+                self.final_code.append(assembly_code)
+            if self.quad.operator=="<=":
+                assembly_code="blt"+register1+","+register2+","+quad.operand3
+                self.final_code.append(assembly_code)       
+            if self.qaud.operator== ">=" and isinstance(self.quad.operand3,int):
+                self.final_code.append(assembly_code)
+                assembly_code="bge"+register1+","+register2+","+quad.operand3
+        self.registers.make_available_reg        
+        return 
+      
+
+
+
+
 
 
     def assembly_transform_operation(self,quad):
@@ -1448,24 +1497,30 @@ class FinalCode:
         if register1!=0 and register2!=0:
             if self.quad.operator=="+":
                 assembly_code="add"+register3+","+register1+","+register2
-                return assembly_code
+                self.final_code.append(assembly_code)
             if self.quad.operator=="-":
                 assembly_code="sub"+register3+","+register1+","+register2
-            
+                self.final_code.append(assembly_code)
             if self.quad.operator=="*":
                 assembly_code="mul"+register3+","+register1+","+register2
+                self.final_code.append(assembly_code)
             if self.quad.operator=="//":
                 assembly_code="div"+register3+","+register1+","+register2
+                self.final_code.append(assembly_code)
             if self.quad.operator=="%":
-                assembly_code="mod"+register3+","+register1+","+register2       
+                assembly_code="mod"+register3+","+register1+","+register2  
+                self.final_code.append(assembly_code)     
+            if self.qaud.operator== "+" and isinstance(self.quad.operand3,int):
+                assembly_code="addi"+register3+","+register1+","+register2
+                self.final_code.append(assembly_code)
+        self.registers.make_available_reg
+        return 
 
-        return assembly_code
 
 
 
+   
 
-    def return_available_reg(self):
-        return
 
 
 
