@@ -1416,9 +1416,7 @@ class FinalCode:
     
     def final_code_gen(self):
 
-        
 
-        
         for var in self.int_var:
             self.offset_table.append([var, self.offset])
             self.offset -=4
@@ -1431,29 +1429,27 @@ class FinalCode:
                 reg = self.registers.return_available_reg()
                 self.final_code.append("li " + str(reg) + ", " + str(quad.operand3*4))
                 self.final_code.append("jr "  + str(reg))
-                print(reg)
                 self.registers.make_available_reg(reg)
 
-            #if(quad.operator in ["+","-","*","//","%"]):
-            #    self.final_code.append(self.assembly_transform_operation(quad))
+            if(quad.operator in ["+","-","*","//","%"]):
+                self.final_code.append(self.assembly_transform_operation(quad))
 
 
-        print(self.final_code)
             if(quad.operator in ["+","-","*","//","%"]):
                 self.assembly_transform_operation(quad)
-                return
             if(quad.operator in ["!=", "<", ">","==", "<=", ">="]):
                self.assembly_transform_condition(quad)
             if(quad.operator=="in"):
                 self.assembly_transform_input(quad)
 
+        self.print_final_code()
         return
     
-    def assemnly_transform_input(self,quad):
-        register1=self.registers.return_available_reg
-        self.final_code.append("li"+register1+","+"5")
+    def assembly_transform_input(self,quad):
+        register1=self.registers.return_available_reg()
+        self.final_code.append("li "+ str(register1)+", "+"5")
         self.final_code.append("ecall")
-        self.registers.make_available_reg
+        self.registers.make_available_reg(register1)
         return 
 
     
@@ -1517,9 +1513,11 @@ class FinalCode:
         return 
 
 
-
-
-   
+    def print_final_code(self):
+        print()
+        print("Final code")
+        for code in self.final_code:
+            print(code)
 
 
 
@@ -1534,13 +1532,11 @@ class Registers:
         
     def return_available_reg(self):
         for reg in self.registers:
-            if reg.avaliable==True:
-                reg.avaliable=False
+            if reg.avaliable == True:
+                reg.avaliable = False
                 return reg.name
-            
-        return -1
-
         
+        return -1
 
 
     def register_storing(self, var):
@@ -1553,8 +1549,7 @@ class Registers:
     def make_available_reg(self, register_name):
         for reg in self.registers:
             if(reg.name == register_name):
-                reg.available = True
-                print("here")
+                reg.avaliable = True
                 return
         return
 
