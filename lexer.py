@@ -1438,7 +1438,7 @@ class FinalCode:
             #    self.final_code.append(self.assembly_transform_operation(quad))
 
 
-        print(self.final_code)
+            print(self.final_code)
             if(quad.operator in ["+","-","*","//","%"]):
                 self.assembly_transform_operation(quad)
                 return
@@ -1449,7 +1449,7 @@ class FinalCode:
 
         return
     
-    def assemnly_transform_input(self,quad):
+    def assembly_transform_input(self,quad):
         register1=self.registers.return_available_reg
         self.final_code.append("li"+register1+","+"5")
         self.final_code.append("ecall")
@@ -1459,8 +1459,8 @@ class FinalCode:
     
     def assembly_transform_condition(self,quad):
         assembly_code=''
-        register1=self.registers.register_storing(quad.operand1)
-        register2=self.registers.register_storing(quad.operand2)
+        register1=self.registers.return_available_reg(quad.operand1)
+        register2=self.registers.return_available_reg(quad.operand2)
         if register1!=0 and register2!=0:
             if self.quad.operator=="!=":
                 assembly_code="bne"+register1+","+register2+","+quad.operand3
@@ -1491,8 +1491,8 @@ class FinalCode:
 
     def assembly_transform_operation(self,quad):
         assembly_code=''
-        register1=self.registers.register_storing(quad.operand2)
-        register2=self.registers.register_storing(quad.operand3)
+        register1=self.registers.return_available_reg(quad.operand2)
+        register2=self.registers.return_available_reg(quad.operand3)
         register3=self.registers.return_available_reg()
         if register1!=0 and register2!=0:
             if self.quad.operator=="+":
