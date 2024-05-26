@@ -1401,12 +1401,12 @@ class SymbolTable:
 
 class FinalCode:
 
-
     def __init__(self, quads, symbolTable, int_var):
         self.quads = quads
         self.symbolTable = symbolTable
         self.int_var = int_var
         self.offset_table = []
+        self.final_code = []
         self.registers = Registers()
         self.sp = 0
         self.sf = 0
@@ -1415,21 +1415,30 @@ class FinalCode:
 
     
     def final_code_gen(self):
-        final_code =[]
         
         for var in self.int_var:
             self.offset_table.append([var, self.offset])
-            self.offset -= 1
+            self.offset -= 4
             
-    
-        print(self.offset_table)
-
 
         for quad in self.quads:
-            if(quad.operator in ["+","-","*","//","%"]):
-                final_code.append(self.assembly_transform_operation(quad))
-                return
+
+
+            if(quad.operator == "jump"):
+                reg = self.registers.return_available_reg()
+                self.final_code.append("li " + str(reg) + ", " + str(quad.operand3*4))
+                self.final_code.append("jr "  + str(reg))
+                print(reg)
+                self.registers.make_available_reg(reg)
+
+            #if(quad.operator in ["+","-","*","//","%"]):
+            #    self.final_code.append(self.assembly_transform_operation(quad))
+
+
+        print(self.final_code)
+
         return
+
 
     def assembly_transform_operation(self,quad):
         assembly_code=''
@@ -1469,12 +1478,12 @@ class Registers:
         
         
     def return_available_reg(self):
-        for reg in  self.registers:
+        for reg in self.registers:
             if reg.avaliable==True:
                 reg.avaliable=False
                 return reg.name
             
-        return
+        return -1
 
         
 
@@ -1490,6 +1499,7 @@ class Registers:
         for reg in self.registers:
             if(reg.name == register_name):
                 reg.available = True
+                print("here")
                 return
         return
 
