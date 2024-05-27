@@ -635,6 +635,12 @@ class Parser:
             exit()
 
         self.advance_token()
+        print("func call")
+
+        if(self.next_token.value == ")"):
+            self.advance_token()
+            return
+
         self.expression()
 
 
@@ -1459,23 +1465,23 @@ class FinalCode:
         register2=self.registers.return_available_reg()
         if register1!=0 and register2!=0:
             if quad.operator=="!=":
-                assembly_code="bne"+str(register1)+","+str(register2)+","+str(quad.operand3)
+                assembly_code="bne "+str(register1)+","+str(register2)+","+str(quad.operand3)
                 self.final_code.appemd(assembly_code)
             if quad.operator=="==":
-                assembly_code="beq"+str(register1)+","+str(register2)+","+str(quad.operand3)
+                assembly_code="beq "+str(register1)+","+str(register2)+","+str(quad.operand3)
                 self.final_code.append(assembly_code)
             if quad.operator=="<":
-                assembly_code="blt"+ str(register1) + "," + str(register2) + "," + str(quad.operand3)
+                assembly_code="blt "+str(register1) + "," + str(register2) + "," + str(quad.operand3)
                 self.final_code.append(assembly_code)
             if quad.operator==">":
-                assembly_code="bgt"+str(register1)+","+str(register2)+","+str(quad.operand3)
+                assembly_code="bgt "+str(register1)+","+str(register2)+","+str(quad.operand3)
                 self.final_code.append(assembly_code)
             if quad.operator=="<=":
-                assembly_code="blt"+str(register1)+","+str(register2)+","+str(quad.operand3)
+                assembly_code="blt "+str(register1)+","+str(register2)+","+str(quad.operand3)
                 self.final_code.append(assembly_code)       
             if quad.operator== ">=" and isinstance(quad.operand3,int):
                 self.final_code.append(assembly_code)
-                assembly_code="bge"+str(register1)+","+str(register2)+","+str(quad.operand3)
+                assembly_code="bge "+str(register1)+","+str(register2)+","+str(quad.operand3)
         self.registers.make_available_reg(register1)
         self.registers.make_available_reg(register2)
         return 
@@ -1493,22 +1499,22 @@ class FinalCode:
         register3=self.registers.return_available_reg()
         if register1!=0 and register2!=0:
             if quad.operator=="+":
-                assembly_code="add"+str(register3)+","+str(register1)+","+str(register2)
+                assembly_code="add "+str(register3)+","+str(register1)+","+str(register2)
                 self.final_code.append(assembly_code)
             if quad.operator=="-":
-                assembly_code="sub"+str(register3)+","+str(register1)+","+str(register2)
+                assembly_code="sub "+str(register3)+","+str(register1)+","+str(register2)
                 self.final_code.append(assembly_code)
             if quad.operator=="*":
-                assembly_code="mul"+str(register3)+","+str(register1)+","+str(register2)
+                assembly_code="mul "+str(register3)+","+str(register1)+","+str(register2)
                 self.final_code.append(assembly_code)
             if quad.operator=="//":
-                assembly_code="div"+str(register3)+","+str(register1)+","+str(register2)
+                assembly_code="div "+str(register3)+","+str(register1)+","+str(register2)
                 self.final_code.append(assembly_code)
             if quad.operator=="%":
-                assembly_code="mod"+str(register3)+","+str(register1)+","+str(register2) 
+                assembly_code="mod "+str(register3)+","+str(register1)+","+str(register2) 
                 self.final_code.append(assembly_code)     
             if quad.operator== "+" and isinstance(quad.operand3,int):
-                assembly_code="addi"+register3+","+register1+","+register2
+                assembly_code="addi "+register3+","+register1+","+register2
                 self.final_code.append(assembly_code)
         self.registers.make_available_reg(register1)
         self.registers.make_available_reg(register2)
