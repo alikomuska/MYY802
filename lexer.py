@@ -1520,7 +1520,8 @@ class FinalCode:
 
     def assembly_transform_operation(self,quad):
 
-        print(type(quad.operand1))
+        print(quad.operand2)
+        print(type(quad.operand2))
         register1=self.registers.return_available_reg()
         register2=self.registers.return_available_reg()
         register3=self.registers.return_available_reg()
