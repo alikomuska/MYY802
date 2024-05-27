@@ -1429,19 +1429,7 @@ class FinalCode:
 
 
             if(quad.operator == ":="):
-                reg = self.registers.return_available_reg()
-                if(type(quad.operand1) == int):
-                    self.final_code.append("li " + str(reg) + ", " + str(quad.operand1))
-                    self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
-                    self.registers.make_available_reg(reg)
-                elif(quad.operand1[0] == "T" and quad.operand1[1] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]):
-                    self.final_code.append("sw " + str(self.return_temp_register(quad.operand1)) +", "  + str(self.return_var_offset(quad.operand3))  +"(fp)")
-                else:
-                    self.final_code.append("lw " + str(reg) + ", " + str(self.return_var_offset(quad.operand1))  +"(fp)")
-                    self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
-
-                self.registers.make_available_reg(quad.operand1)
-
+                self.assiment(quad)
 
             if(quad.operator == "jump"):
                 reg = self.registers.return_available_reg()
@@ -1461,6 +1449,23 @@ class FinalCode:
         self.print_final_code()
         return
     
+
+    
+    def assiment(self, quad):
+        reg = self.registers.return_available_reg()
+        if(type(quad.operand1) == int):
+            self.final_code.append("li " + str(reg) + ", " + str(quad.operand1))
+            self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
+            self.registers.make_available_reg(reg)
+        elif(quad.operand1[0] == "T" and quad.operand1[1] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]):
+            self.final_code.append("sw " + str(self.return_temp_register(quad.operand1)) +", "  + str(self.return_var_offset(quad.operand3))  +"(fp)")
+        else:
+            self.final_code.append("lw " + str(reg) + ", " + str(self.return_var_offset(quad.operand1))  +"(fp)")
+            self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
+
+        self.registers.make_available_reg(quad.operand1)
+
+
 
     def return_temp_register(self, temp_var):
         for temp in self.temp_var_table:
