@@ -1413,6 +1413,7 @@ class FinalCode:
         self.int_var = int_var
         self.offset_table = []
         self.final_code=[]
+        self.temp_var_table = []
         self.sp = 0
         self.sf = 0
         self.offset = 0
@@ -1529,37 +1530,49 @@ class FinalCode:
 
 
     def assembly_transform_operation(self,quad):
-
-        #if(type(quad.operand2) == "int"):
-
-        print(quad.operand1)
-        print(quad.operand2)
-        print(type(quad.operand2))
         register1=self.registers.return_available_reg()
         register2=self.registers.return_available_reg()
+        register3=self.registers.return_available_reg()
+
+        if(type(quad.operand1) == int):
+            self.final_code.append("li " + str(register1) + ", " + str(quad.operand1))
+        else:
+            self.final_code.append("lw " + str(register1) + ", " + str(self.return_var_offset(quad.operand1))  +"(fp)")
+
+
+        if(type(quad.operand2) == int):
+            self.final_code.append("li " + str(register2) + ", " + str(quad.operand2))
+        else:
+            self.final_code.append("lw " + str(register2) + ", " + str(self.return_var_offset(quad.operand2))  +"(fp)")
+
+
  
         if register1!=0 and register2!=0:
             if quad.operator=="+":
-                assembly_code="add "+str(quad.operand3)+","+str(register1)+","+str(register2)
-                self.final_code.append(assembly_code)
+                assembly_code="add "
             if quad.operator=="-":
-                assembly_code="sub "+str(quad.operand3)+","+str(register1)+","+str(register2)
-                self.final_code.append(assembly_code)
+                assembly_code="sub "
             if quad.operator=="*":
-                assembly_code="mul "+str(quad.operand3)+","+str(register1)+","+str(register2)
-                self.final_code.append(assembly_code)
+                assembly_code="mul "
             if quad.operator=="//":
-                assembly_code="div "+str(quad.operand3)+","+str(register1)+","+str(register2)
-                self.final_code.append(assembly_code)
+                assembly_code="div "
             if quad.operator=="%":
-                assembly_code="mod "+str(quad.operand3)+","+str(register1)+","+str(register2) 
-                self.final_code.append(assembly_code)     
+                assembly_code="mod "
             if quad.operator== "=" and isinstance(quad.operand3,int):
-                assembly_code="addi "+quad.operand3+","+register1+","+register2
-                self.final_code.append(assembly_code)
+                assembly_code="addi "
+                
+            assembly_code+= register3 + ", " + register2 + ", " + register1
+            self.final_code.append(assembly_code)
+
+            if(quad.operand3[0] == "T" and quad.operand3[1] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]):
+                self.temp_var_table.append([quad.operand3, register3])
+            else:
+                self.final_code.append("lw " + str(register3) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
+                self.registers.make_available_reg(register3)
+
+
         self.registers.make_available_reg(register1)
         self.registers.make_available_reg(register2)
-
         return 
 
 
