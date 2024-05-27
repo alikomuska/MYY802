@@ -1485,7 +1485,6 @@ class FinalCode:
             return 
     
     def assembly_transform_endOfProgramm(self,quad):
-<<<<<<< HEAD
             self.final_code.append("li a0,0")
             self.final_code.append("li a7,93")
             self.final_code.append("ecall")
@@ -1493,9 +1492,6 @@ class FinalCode:
             return 
     
     
-=======
-        return
->>>>>>> f84cf2c9cc95d63109e4855e0c2fa8d9906ee944
     
     def assembly_transform_condition(self,quad):
         assembly_code=''
@@ -1532,6 +1528,9 @@ class FinalCode:
 
     def assembly_transform_operation(self,quad):
 
+        #if(type(quad.operand2) == "int"):
+
+        print(quad.operand1)
         print(quad.operand2)
         print(type(quad.operand2))
         register1=self.registers.return_available_reg()
