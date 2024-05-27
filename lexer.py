@@ -1436,6 +1436,8 @@ class FinalCode:
                 self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
                 self.registers.make_available_reg(reg)
 
+            #if(quad.operator == ""
+
 
             if(quad.operator == "jump"):
                 reg = self.registers.return_available_reg()
@@ -1517,7 +1519,8 @@ class FinalCode:
 
 
     def assembly_transform_operation(self,quad):
-        assembly_code=''
+
+        print(type(quad.operand1))
         register1=self.registers.return_available_reg()
         register2=self.registers.return_available_reg()
         register3=self.registers.return_available_reg()
@@ -1542,6 +1545,7 @@ class FinalCode:
                 self.final_code.append(assembly_code)
         self.registers.make_available_reg(register1)
         self.registers.make_available_reg(register2)
+        self.registers.make_available_reg(register3)
         return 
 
 
