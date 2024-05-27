@@ -635,6 +635,11 @@ class Parser:
             exit()
 
         self.advance_token()
+
+        if(self.next_token.value == ")"):
+            self.advance_token()
+            return
+
         self.expression()
 
 
@@ -1425,6 +1430,13 @@ class FinalCode:
         for quad in self.quads:
 
 
+            if(quad.operator == ":="):
+                reg = self.registers.return_available_reg()
+                self.final_code.append("li " + str(reg) + ", " + str(quad.operand1))
+                self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
+                self.registers.make_available_reg(reg)
+
+
             if(quad.operator == "jump"):
                 reg = self.registers.return_available_reg()
                 self.final_code.append("li " + str(reg) + ", " + str(quad.operand3*4))
@@ -1446,6 +1458,14 @@ class FinalCode:
         self.print_final_code()
         return
     
+    def return_var_offset(self, var_name):
+        for var in self.offset_table:
+            if(var[0] == var_name):
+                return var[1]
+        print("Error variable", var_name, "not declared") 
+        exit()
+
+
     def assembly_transform_input(self,quad):
         register1=self.registers.return_available_reg()
         self.final_code.append("li "+ str(register1)+", "+"5")
@@ -1460,7 +1480,8 @@ class FinalCode:
             self.final_code.append("ecall")
             return 
     
-    def assembly_transform_endOfProgramm(self,quad)
+    def assembly_transform_endOfProgramm(self,quad):
+        return
     
     def assembly_transform_condition(self,quad):
         assembly_code=''
