@@ -390,9 +390,6 @@ class Parser:
 
         #code_block
         self.code_block_state(0, 1) #is_main = 0 multipleLines =  multipleLines = 1
-        print("################")
-        print("COMPILATION DONE")
-        print("################")
         return 
     
     #to be done
@@ -1642,10 +1639,16 @@ class Compiler:
     def __init__(self, sourceCode):
     	#Lexer
         self.lex = Lexer(sourceCode)
+        print("==========")
+        print("LEXER DONE")
+        print("==========\n")
         
         #Parser
         self.par = Parser(self.lex)
         self.par.syntax_analyzer()
+        print("===========")
+        print("PARSER DONE")
+        print("===========\n")
 
         #Fields
         self.symbol_table = []
@@ -1658,9 +1661,17 @@ class Compiler:
         #Int_Code_Genarator
         self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table)
         self.quads = self.int_generator.return_quads()
+        print("=======================")
+        print("INTERMIDIATE CODE DONE")
+        print("=======================")
 
         #Final Code Maker
         self.final_code_maker = FinalCode(self.quads, self.tokens, self.int_generator.return_int_var())
+        print("===============")
+        print("FINAL CODE DONE")
+        print("===============\n")
+
+        print("*****COMPILATION DONE*****\n")
 
     def remove_comments(self, tokens):
         new_tokens = []
