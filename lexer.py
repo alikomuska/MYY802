@@ -1445,11 +1445,6 @@ class FinalCode:
                 self.final_code.append("li " + str(reg) + ", " + str(quad.operand3*4))
                 self.final_code.append("jr "  + str(reg))
                 self.registers.make_available_reg(reg)
-
-            if(quad.operator in ["+","-","*","//","%"]):
-                self.final_code.append(self.assembly_transform_operation(quad))
-
-
             if(quad.operator in ["+","-","*","//","%"]):
                 self.assembly_transform_operation(quad)
             if(quad.operator in ["!=", "<", ">","==", "<=", ">="]):
@@ -1503,7 +1498,7 @@ class FinalCode:
         if register1!=0 and register2!=0:
             if quad.operator=="!=":
                 assembly_code="bne "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
-                self.final_code.appemd(assembly_code)
+                self.final_code.append(assembly_code)
             if quad.operator=="==":
                 assembly_code="beq "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
                 self.final_code.append(assembly_code)
@@ -1517,8 +1512,9 @@ class FinalCode:
                 assembly_code="blt "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
                 self.final_code.append(assembly_code)       
             if quad.operator== ">=" and isinstance(quad.operand3,int):
-                self.final_code.append(assembly_code)
+                
                 assembly_code="bge "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
+                self.final_code.append(assembly_code)
         self.registers.make_available_reg(register1)
         self.registers.make_available_reg(register2)
         return 
