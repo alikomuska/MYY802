@@ -793,13 +793,12 @@ class Int_Code_Generator:
             file.write("THE QUADS OF THE PROGRAMM\n")
             for quad in quads:
                      file.write( str(quad.label) + ": " + ", ".join([quad.operator , str(quad.operand1), str(quad.operand2), str(quad.operand3)]) + "\n")
-
         print("TABLE WITH PROGRAMM QUADS  IS WRITTEN TO ", file_name)
         return
     
     
     def init_code_maker(self, end_char):
-    
+
         self.variables_loader()
 
         while(self.current_token.value == "global"):
@@ -841,6 +840,7 @@ class Int_Code_Generator:
         op = ["+", "-", "*", "//", "%"]
         index = 0
 
+            
         while index < len(expression):
             if(expression[index] in op or expression[index] == "(" or expression[index] == ")"):
                 new_expression.append(expression[index])
@@ -1257,7 +1257,7 @@ class Int_Code_Generator:
 
     def return_temp_var(self):
         self.temp_var+=1
-        return ("T" + str(self.temp_var - 1))
+        return ("T_" + str(self.temp_var - 1))
         
         
     def print_quads(self):
@@ -1403,16 +1403,15 @@ class SymbolTable:
 
 class FinalCode:
 
-    def __init__(self, quads, symbolTable,int_var):
+    def __init__(self, quads, symbolTable,int_var, global_variables):
         self.registers = Registers()
         self.quads = quads
         self.symbolTable = symbolTable
         self.int_var = int_var
+        self.global_variables = global_variables
         self.offset_table = []
         self.final_code=[]
         self.temp_var_table = []
-        self.sp = 0
-        self.sf = 0
         self.offset = 0
         self.final_code_gen()
 
@@ -1457,7 +1456,7 @@ class FinalCode:
             self.final_code.append("li " + str(reg) + ", " + str(quad.operand1))
             self.final_code.append("sw " + str(reg) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
             self.registers.make_available_reg(reg)
-        elif(quad.operand1[0] == "T" and quad.operand1[1] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]):
+        elif(quad.operand1[0:2] == "T_"):
             self.final_code.append("sw " + str(self.return_temp_register(quad.operand1)) +", "  + str(self.return_var_offset(quad.operand3))  +"(fp)")
         else:
             self.final_code.append("lw " + str(reg) + ", " + str(self.return_var_offset(quad.operand1))  +"(fp)")
@@ -1508,29 +1507,26 @@ class FinalCode:
     
     
     def assembly_transform_condition(self,quad):
-        assembly_code=''
         register1=self.registers.return_available_reg()
         register2=self.registers.return_available_reg()
+
         if register1!=0 and register2!=0:
             if quad.operator=="!=":
-                assembly_code="bne "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
-                self.final_code.append(assembly_code)
+                assembly_code="bne "
             if quad.operator=="==":
-                assembly_code="beq "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
-                self.final_code.append(assembly_code)
+                assembly_code="beq "
             if quad.operator=="<":
-                assembly_code="blt "+ str(register1) + "," + str(register2) + "," + str(4*quad.operand3)
-                self.final_code.append(assembly_code)
+                assembly_code="blt "
             if quad.operator==">":
-                assembly_code="bgt "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
-                self.final_code.append(assembly_code)
+                assembly_code="bgt "
             if quad.operator=="<=":
-                assembly_code="blt "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
-                self.final_code.append(assembly_code)       
+                assembly_code="blt "
             if quad.operator== ">=" and isinstance(quad.operand3,int):
-                
-                assembly_code="bge "+str(register1)+","+str(register2)+","+str(4*quad.operand3)
-                self.final_code.append(assembly_code)
+                assembly_code="bge "
+	
+        assembly_code += str(register1) + ", " + str(register2) + ", " + str(4*quad.operand3)
+        self.final_code.append(assembly_code)
+	
         self.registers.make_available_reg(register1)
         self.registers.make_available_reg(register2)
         return 
@@ -1576,7 +1572,8 @@ class FinalCode:
             assembly_code+= register3 + ", " + register2 + ", " + register1
             self.final_code.append(assembly_code)
 
-            if(quad.operand3[0] == "T" and quad.operand3[1] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]):
+
+            if(quad.operand3[0:2] == "T_"):
                 self.temp_var_table.append([quad.operand3, register3])
             else:
                 self.final_code.append("lw " + str(register3) + ", " + str(self.return_var_offset(quad.operand3))  +"(fp)")
@@ -1671,7 +1668,7 @@ class Compiler:
         print("=======================")
 
         #Final Code Maker
-        self.final_code_maker = FinalCode(self.quads, self.tokens, self.int_generator.return_int_var())
+        self.final_code_maker = FinalCode(self.quads, self.tokens, self.int_generator.return_int_var(), self.return_global_var_offset())
         print("===============")
         print("FINAL CODE DONE")
         print("===============\n")
@@ -1696,6 +1693,19 @@ class Compiler:
             new_tokens.append(token)
 
         return new_tokens
+
+
+    def return_global_var_offset(self):
+        offset = 0
+        global_var_offset = []
+
+        for symbol in self.symbol_table:
+            if(symbol.symbol_type == "function"):
+                return global_var_offset
+
+            global_var_offset.append([symbol.name, str(4*offset)+"(gp)"])
+            offset -=4
+        return global_var_offset
 
 
     def advance(self):
