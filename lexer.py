@@ -750,11 +750,12 @@ class Parser:
 
 class Int_Code_Generator:
     
-    def __init__(self, sourceCode, tokens, index, symbol_table):
+    def __init__(self, sourceCode, tokens, index, symbol_table, parameters_name):
         self.symbol_tables = []
         self.symbol_table = symbol_table
         self.symbol_tables.append(symbol_table)
         self.tokens = tokens
+        self.parameters_name = parameters_name
         self.int_var = []
         self.quads = []
         self.token_index = 0
@@ -835,6 +836,18 @@ class Int_Code_Generator:
         return
 
 
+    def return_func_parameters(self, function_name):
+        for symbol in self.symbol_table:
+            if symbol.name == function_name:
+                return symbol.func_par
+
+
+    def return_par_number(self, function_name):
+        for symbol in self.symbol_table:
+            if symbol.name == function_name:
+                return symbol.par_number
+
+
     def calc_functions(self, expression):
         new_expression = []
         op = ["+", "-", "*", "//", "%"]
@@ -857,7 +870,6 @@ class Int_Code_Generator:
                 parameters = []
                 index+=2
 
-                self.pass_parameters(function_name)
 
                 if(expression[index] == ")"):
                     index+=1
@@ -872,11 +884,33 @@ class Int_Code_Generator:
                     elif(expression[index] == "("):
                         parenthesis_count +=1
                 index+=1
+               
+                parameter = []
+                new_parameters = []
+                par_index = 1
+                for token in parameters:
+                    if token == ",":
+                        self.assiment("a_"+str(par_index), parameter)
+                        new_parameters.append("a_"+str(par_index))
+                        par_index +=1
+                        parameter = []
+                        continue
+                    parameter.append(token)
+               
+                self.assiment("a_"+str(par_index), parameter)
+                new_parameters.append("a_"+str(par_index))
+
                 
+               
+                par_number = self.return_par_number(function_name)
+                if(len(new_parameters) != par_number):
+                    print("Error, ", function_name, " has", par_number, "parameters")
+                    exit()
 
 
+                self.pass_parameters(function_name)
                 self.genQuad("begin_block", function_name, "", "")
-                self.function_call(function_name, parameters)
+                self.function_call(function_name, parameters, self.return_func_parameters(function_name))
                 self.genQuad("end_block", function_name, "", "")
                 self.genQuad(":=", "ret_var", "", temp)
 
@@ -889,22 +923,27 @@ class Int_Code_Generator:
 
 
     def pass_parameters(self, function_name):
+        index = 1
         for function in self.symbol_table:
             if function_name == function.name:
                 for par in function.func_par:
-                    self.genQuad("par", par, "cv", "")
+                    self.genQuad("par", "a_"+str(index), "cv", "")
+                    index += 1
 
         return
 
 
 
-    def function_call(self, function_name, parameters):
+    def function_call(self, function_name, parameters, parameters_name):
+        print(parameters_name)
         new_parameters = [] 
         int_var_buff = self.int_var
         index_buf = self.token_index
         tokens_buf = self.tokens
         current_token_buf = self.current_token
         next_token_buf = self.next_token
+        parameters_name_buf = self.parameters_name
+        self.parameters_name = parameters_name
         self.token_index = 1
 
         for sym in self.symbol_table:
@@ -920,6 +959,7 @@ class Int_Code_Generator:
         self.int_var = int_var_buff
         self.token_index = index_buf
         self.tokens = tokens_buf
+        self.parameters_name = parameters_name_buf
         self.current_token = current_token_buf
         self.next_token = next_token_buf
         return
@@ -1098,7 +1138,7 @@ class Int_Code_Generator:
                         self.advance_token()
 
                     self.advance_token()
-                    self.genQuad("in", "", "", "")
+                    self.genQuad("in", assiment_var, "", "")
 
                 #a = 1 (constant)
                 elif(self.current_token.line != self.next_token.line):
@@ -1299,7 +1339,7 @@ class Int_Code_Generator:
             elif(quad.operator == "out"):
                 print(str(quad.label), "print")
             elif(quad.operator == "in"):
-                print(str(quad.label), "input")
+                print(str(quad.label), "input", str(quad.operand1))
             elif(quad.operator == "ret"):
                 print(str(quad.label), "return")
             elif(quad.operator == "jump"):
@@ -1438,8 +1478,8 @@ class FinalCode:
         self.int_var = int_var
         self.global_variables = global_variables
         self.offset_table = []
-        self.final_code=[]
         self.temp_var_table = []
+        self.final_code=[]
         self.offset = 0
         self.final_code_gen()
 
@@ -1454,31 +1494,34 @@ class FinalCode:
 
         for quad in self.quads:
 
-
             if(quad.operator == ":="):
                 if(quad.operand1 == "ret_var"):
                     reg = self.registers.return_available_reg()
                     self.temp_var_table.append([quad.operand3, reg])
                     self.final_code.append("mv "  + str(reg)+ ", "+ "a0")
+                elif(str(quad.operand3[0:2]) == "a_"):
+                    reg1 = quad.operand3[0] + quad.operand3[2:]
+                    reg2 = self.operand_to_reg(quad.operand1)
+                    self.final_code.append("sw " + str(reg1) + ", " + str(reg2))
                 else:
                     self.assiment(quad)
 
-            if(quad.operator == "jump"):
+            elif(quad.operator == "jump"):
                 reg = self.registers.return_available_reg()
                 self.final_code.append("li " + str(reg) + ", " + str(quad.operand3*4))
                 self.final_code.append("jr "  + str(reg))
                 self.registers.make_available_reg(reg)
-            if(quad.operator in ["+","-","*","//","%"]):
+            elif(quad.operator in ["+","-","*","//","%"]):
                 self.assembly_transform_operation(quad)
-            if(quad.operator in ["!=", "<", ">","==", "<=", ">="]):
+            elif(quad.operator in ["!=", "<", ">","==", "<=", ">="]):
                self.assembly_transform_condition(quad)
-            if(quad.operator=="in"):
+            elif(quad.operator=="in"):
                 self.assembly_transform_input(quad)
-            if(quad.operator=="out"):
+            elif(quad.operator=="out"):
                 self.assembly_tranform_output(quad)
-            if(quad.operator=="halt"):
+            elif(quad.operator=="halt"):
                 self.assembly_transform_endOfProgramm(quad)
-            if(quad.operator=="ret"):
+            elif(quad.operator=="ret"):
                 self.final_code.append("mv " + "a0" + ", " + self.return_temp_register(quad.operand1))
                 self.final_code.append("ret " + ", " + ", " + ",")
         self.print_final_code()
@@ -1507,7 +1550,7 @@ class FinalCode:
             return str(offset) + "(fp)"
         elif(type(self.isglobal_var(operand)) == str):
             return self.isglobal_var(operand)
-        print("error")
+        print("error", operand)
         exit()
         return
 
@@ -1638,6 +1681,9 @@ class FinalCode:
 
             if(quad.operand3[0:2] == "T_"):
                 self.temp_var_table.append([quad.operand3, register3])
+            elif(str(quad.operand3[0:2]) == "a_"):
+                reg = quad.operand3[0] + quad.operand3[2:]
+                self.final_code.append("sw " + reg + ", " + register3)
             else:
                 self.final_code.append("sw " + str(register3) + ", " + self.return_address(quad.operand3))
                 self.registers.make_available_reg(register3)
@@ -1725,7 +1771,7 @@ class Compiler:
         self.make_symbols()
 
         #Int_Code_Genarator
-        self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table)
+        self.int_generator = Int_Code_Generator(sourceCode, self.tokens, self.token_index, self.symbol_table, None)
         self.quads = self.int_generator.return_quads()
         print("=======================")
         print("INTERMIDIATE CODE DONE")
