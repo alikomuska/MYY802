@@ -764,6 +764,7 @@ class Int_Code_Generator:
         self.next_token = Token("NULL" , "NULL", 0)
         self.token_init()
         self.init_code_maker("NULL")
+        self.genQuad("halt", "", "", "")
         self.print_Quads_file(self.quads)
         print("QUADS")
         self.print_quads()
@@ -811,7 +812,6 @@ class Int_Code_Generator:
 
         #fuc declaration missing
         self.code_block(end_char, 1)
-        self.genQuad("halt", "", "", "")
 
 
         return
@@ -857,6 +857,8 @@ class Int_Code_Generator:
                 parameters = []
                 index+=2
 
+                self.pass_parameters(function_name)
+
                 if(expression[index] == ")"):
                     index+=1
                     continue
@@ -870,16 +872,30 @@ class Int_Code_Generator:
                     elif(expression[index] == "("):
                         parenthesis_count +=1
                 index+=1
+                
+
+
                 self.genQuad("begin_block", function_name, "", "")
                 self.function_call(function_name, parameters)
-                self.genQuad("halt", "", "", "")
                 self.genQuad("end_block", function_name, "", "")
+                self.genQuad(":=", "ret_var", "", temp)
+
 
             else:
                 new_expression.append(expression[index])
                 index+=1
 
         return new_expression
+
+
+    def pass_parameters(self, function_name):
+        for function in self.symbol_table:
+            if function_name == function.name:
+                for par in function.func_par:
+                    self.genQuad("par", par, "cv", "")
+
+        return
+
 
 
     def function_call(self, function_name, parameters):
@@ -1113,9 +1129,18 @@ class Int_Code_Generator:
 
             ## return
             if(self.current_token.value == "return"):
+                assiment = []
+                assiment = []
+                self.advance_token()
+                assiment.append(self.current_token.value)
+
                 while(self.current_token.line == self.next_token.line):
                     self.advance_token()
-                self.genQuad("ret", "", "", "")
+                    assiment.append(self.current_token.value)
+                
+                temp = self.return_temp_var()
+                self.assiment(temp, assiment) 
+                self.genQuad("ret", temp, "", "")
                 self.advance_token()
                 if(multiple_lines == 0):
                     return
@@ -1283,6 +1308,8 @@ class Int_Code_Generator:
                 print(str(quad.label), "halt")
             elif(quad.operator == "begin_block" or quad.operator == "end_block"):
                 print(str(quad.label), quad.operator, quad.operand1)
+            elif(quad.operator == "par"):
+                print(str(quad.label), "par", str(quad.operand1)+ ",",str(quad.operand2))
 
         return
 
@@ -1429,7 +1456,12 @@ class FinalCode:
 
 
             if(quad.operator == ":="):
-                self.assiment(quad)
+                if(quad.operand1 == "ret_var"):
+                    reg = self.registers.return_available_reg()
+                    self.temp_var_table.append([quad.operand3, reg])
+                    self.final_code.append("mv "  + str(reg)+ ", "+ "a0")
+                else:
+                    self.assiment(quad)
 
             if(quad.operator == "jump"):
                 reg = self.registers.return_available_reg()
@@ -1446,6 +1478,9 @@ class FinalCode:
                 self.assembly_tranform_output(quad)
             if(quad.operator=="halt"):
                 self.assembly_transform_endOfProgramm(quad)
+            if(quad.operator=="ret"):
+                self.final_code.append("mv " + "a0" + ", " + self.return_temp_register(quad.operand1))
+                self.final_code.append("ret " + ", " + ", " + ",")
         self.print_final_code()
         return
     
@@ -1471,10 +1506,7 @@ class FinalCode:
         if(offset >= 0):
             return str(offset) + "(fp)"
         elif(type(self.isglobal_var(operand)) == str):
-
-            print(self.isglobal_var(operand))
             return self.isglobal_var(operand)
-        print(operand)
         print("error")
         exit()
         return
@@ -1533,19 +1565,15 @@ class FinalCode:
         register = self.registers.return_available_reg()
 
         if(type(operand) == int):
-            print("int", operand)
             self.final_code.append("li " + str(register) + ", " + str(operand))
         
         elif(self.return_local_offset(operand)>=0):
-            print("local", operand)
             self.final_code.append("lw " + str(register) + ", " + str(self.return_local_offset(operand))  +"(fp)")
 
         elif(operand[0:2] == "T_"):
-            print("temp", operand)
             register = self.return_temp_register(operand)
 
         elif(self.isglobal_var(operand)):
-            print("global", operand)
             self.final_code.append("lw " + str(register) + ", " + str(self.isglobal_var(operand)))
 
         else:
