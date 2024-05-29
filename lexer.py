@@ -1482,8 +1482,22 @@ class FinalCode:
         self.final_code=[]
         self.offset = 0
         self.final_code_gen()
+        self.export_final_code()
 
     
+
+
+    def export_final_code(self):
+        file_name="final_code.asm"
+        with open(file_name,"w") as file: 
+            file.write("main:\n")
+            for command in self.final_code:
+                file.write(command+ "\n")
+
+        return
+
+
+
     def final_code_gen(self):
 
 
@@ -1627,8 +1641,8 @@ class FinalCode:
 
     
     def assembly_transform_condition(self,quad):
-        register1=self.registers.return_available_reg()
-        register2=self.registers.return_available_reg()
+        register1 = self.operand_to_reg(quad.operand1)
+        register2 = self.operand_to_reg(quad.operand2)
 
         if register1!=0 and register2!=0:
             if quad.operator=="!=":
